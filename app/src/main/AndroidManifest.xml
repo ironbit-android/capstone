@@ -16,6 +16,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:authorities="pe.ironbit.android.capstone"
+            android:name=".storage.provider.CapstoneStorageProvider"
+            android:exported="false" />
+
     </application>
 
 </manifest>
