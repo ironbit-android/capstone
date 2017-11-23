@@ -1,11 +1,11 @@
 package pe.ironbit.android.capstone.model.BookContent;
 
 public class BookContentData {
-    int bookId;
+    private int bookId;
 
-    int section;
+    private int section;
 
-    String value;
+    private String value;
 
     public BookContentData(int bookId, int section, String value) {
         this.bookId = bookId;
