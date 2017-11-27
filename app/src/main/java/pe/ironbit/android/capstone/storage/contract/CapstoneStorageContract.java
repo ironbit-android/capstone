@@ -13,6 +13,12 @@ public class CapstoneStorageContract {
      */
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
+    /**
+     * Initial index value of cursor class.
+     * It is used for invalid value for primary keys.
+     */
+    public static final int NULL_INDEX = -1;
+
     private CapstoneStorageContract() {
     }
 }

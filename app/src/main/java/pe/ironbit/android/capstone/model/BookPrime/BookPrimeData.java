@@ -1,5 +1,7 @@
 package pe.ironbit.android.capstone.model.BookPrime;
 
+import pe.ironbit.android.capstone.storage.contract.BookPrimeContract.BookPrimeEntry;
+
 public class BookPrimeData {
     private int bookId;
 
@@ -9,16 +11,16 @@ public class BookPrimeData {
 
     private String image;
 
-    private String book;
+    private String file;
 
     private BookPrimeStatus status;
 
-    public BookPrimeData(int bookId, String name, String author, String image, String book, BookPrimeStatus status) {
+    public BookPrimeData(int bookId, String name, String author, String image, String file, BookPrimeStatus status) {
         this.bookId = bookId;
         this.name = name;
         this.author = author;
         this.image = image;
-        this.book = book;
+        this.file = file;
         this.status = status;
     }
 
@@ -38,11 +40,25 @@ public class BookPrimeData {
         return image;
     }
 
-    public String getBook() {
-        return book;
+    public String getFile() {
+        return file;
     }
 
     public BookPrimeStatus getStatus() {
         return status;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(BookPrimeEntry.BOOK_ID).append(':').append(bookId).append(',')
+               .append(BookPrimeEntry.BOOK_NAME).append(':').append(name).append(',')
+               .append(BookPrimeEntry.BOOK_AUTHOR).append(':').append(author).append(',')
+               .append(BookPrimeEntry.BOOK_IMAGE).append(':').append(image).append(',')
+               .append(BookPrimeEntry.BOOK_FILE).append(':').append(file).append(',')
+               .append(BookPrimeEntry.BOOK_STATUS).append(':').append(status).append(';');
+
+        return builder.toString();
     }
 }

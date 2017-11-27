@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import pe.ironbit.android.capstone.storage.contract.BookContentContract.BookContentEntry;
+import pe.ironbit.android.capstone.storage.contract.BookPrimeContract.BookPrimeEntry;
 
 public class CapstoneStorageConfig extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "capstone.db";
@@ -18,6 +19,7 @@ public class CapstoneStorageConfig extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(createBookContextTable());
+        sqLiteDatabase.execSQL(createBookPrimeTable());
     }
 
     @Override
@@ -30,5 +32,15 @@ public class CapstoneStorageConfig extends SQLiteOpenHelper {
                + BookContentEntry.BOOK_SECTION + " INTEGER NOT NULL, "
                + BookContentEntry.BOOK_VALUE + " TEXT NOT NULL, "
                + "PRIMARY KEY (" + BookContentEntry.BOOK_ID + ", " + BookContentEntry.BOOK_SECTION + "));";
+    }
+
+    protected String createBookPrimeTable() {
+        return "CREATE TABLE " + BookPrimeEntry.TABLE_NAME + " (" +
+               BookPrimeEntry.BOOK_ID + " INTEGER PRIMARY KEY, " +
+               BookPrimeEntry.BOOK_NAME + " TEXT NOT NULL, " +
+               BookPrimeEntry.BOOK_AUTHOR + " TEXT NOT NULL, " +
+               BookPrimeEntry.BOOK_IMAGE + " TEXT NOT NULL, " +
+               BookPrimeEntry.BOOK_FILE + " TEXT NOT NULL, " +
+               BookPrimeEntry.BOOK_STATUS + " INTEGER NOT NULL);";
     }
 }

@@ -30,7 +30,7 @@ public class BookPrimeParcelable implements Parcelable {
                .setName(parcel.readString())
                .setAuthor(parcel.readString())
                .setImage(parcel.readString())
-               .setBook(parcel.readString())
+               .setFile(parcel.readString())
                .setStatus(BookPrimeStatus.convertIntegerToStatus(parcel.readInt()));
 
         data = builder.build();
@@ -51,7 +51,7 @@ public class BookPrimeParcelable implements Parcelable {
         parcel.writeString(data.getName());
         parcel.writeString(data.getAuthor());
         parcel.writeString(data.getImage());
-        parcel.writeString(data.getBook());
+        parcel.writeString(data.getFile());
         parcel.writeInt(BookPrimeStatus.convertStatusToInteger(data.getStatus()));
     }
 }

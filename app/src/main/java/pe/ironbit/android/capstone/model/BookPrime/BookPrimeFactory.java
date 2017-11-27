@@ -8,8 +8,8 @@ public class BookPrimeFactory {
                                        String name,
                                        String author,
                                        String image,
-                                       String book,
+                                       String file,
                                        BookPrimeStatus status) {
-        return new BookPrimeData(bookId, name, author, image, book, status);
+        return new BookPrimeData(bookId, name, author, image, file, status);
     }
 }

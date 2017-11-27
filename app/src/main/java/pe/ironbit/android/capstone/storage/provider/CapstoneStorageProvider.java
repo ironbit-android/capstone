@@ -14,6 +14,8 @@ import android.util.Log;
 import pe.ironbit.android.capstone.storage.config.CapstoneStorageConfig;
 import pe.ironbit.android.capstone.storage.contract.BookContentContract;
 import pe.ironbit.android.capstone.storage.contract.BookContentContract.BookContentEntry;
+import pe.ironbit.android.capstone.storage.contract.BookPrimeContract;
+import pe.ironbit.android.capstone.storage.contract.BookPrimeContract.BookPrimeEntry;
 import pe.ironbit.android.capstone.storage.contract.CapstoneStorageContract;
 
 public class CapstoneStorageProvider extends ContentProvider {
@@ -31,6 +33,14 @@ public class CapstoneStorageProvider extends ContentProvider {
         sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY, BookContentContract.PATH_TABLE, BOOK_CONTENT_LIST);
 
         sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY, BookContentContract.PATH_TABLE + "/#/#", BOOK_CONTENT_ITEM);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           BookPrimeContract.PATH_TABLE,
+                           BookPrimeContract.BOOK_PRIME_LIST);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           BookPrimeContract.PATH_TABLE + "/#",
+                           BookPrimeContract.BOOK_PRIME_ITEM);
     }
 
     @Override
@@ -48,6 +58,12 @@ public class CapstoneStorageProvider extends ContentProvider {
                 return BookContentEntry.CONTENT_LIST_TYPE;
             case BOOK_CONTENT_ITEM:
                 return BookContentEntry.CONTENT_ITEM_TYPE;
+
+            case BookPrimeContract.BOOK_PRIME_ITEM:
+                return BookPrimeEntry.CONTENT_ITEM_TYPE;
+            case BookPrimeContract.BOOK_PRIME_LIST:
+                return BookPrimeEntry.CONTENT_LIST_TYPE;
+
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
         }
@@ -56,9 +72,7 @@ public class CapstoneStorageProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        SQLiteDatabase database = capstoneStorageConfig.getReadableDatabase();
-
-        Cursor cursor = null;
+        String tableName = "";
         int match = sUriMatcher.match(uri);
         switch (match) {
             case BOOK_CONTENT_ITEM:
@@ -66,12 +80,22 @@ public class CapstoneStorageProvider extends ContentProvider {
                 String[] array = uri.getPath().split("/");
                 selectionArgs = new String[] {array[array.length - 2], array[array.length - 1]};
             case BOOK_CONTENT_LIST:
-                cursor = database.query(BookContentEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                tableName = BookContentEntry.TABLE_NAME;
                 break;
+
+            case BookPrimeContract.BOOK_PRIME_ITEM:
+                selection = BookPrimeEntry.BOOK_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
+            case BookPrimeContract.BOOK_PRIME_LIST:
+                tableName = BookPrimeEntry.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
 
+        SQLiteDatabase database = capstoneStorageConfig.getReadableDatabase();
+        Cursor cursor = database.query(tableName, projection, selection, selectionArgs, null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
@@ -79,13 +103,22 @@ public class CapstoneStorageProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
+        String tableName = "";
+
         final int match = sUriMatcher.match(uri);
-        if (match != BOOK_CONTENT_LIST) {
-            throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        switch (match) {
+            case BOOK_CONTENT_LIST:
+                tableName = BookContentEntry.TABLE_NAME;
+                break;
+            case BookPrimeContract.BOOK_PRIME_LIST:
+                tableName = BookPrimeEntry.TABLE_NAME;
+                break;
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
         }
 
         SQLiteDatabase database = capstoneStorageConfig.getWritableDatabase();
-        long outcome = database.insert(BookContentEntry.TABLE_NAME, null, contentValues);
+        long outcome = database.insert(tableName, null, contentValues);
         if (outcome == -1) {
             Log.e(TAG, "Failed to insert row for " + uri);
             return null;
@@ -97,49 +130,67 @@ public class CapstoneStorageProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        int deleted = 0;
-        final int match = sUriMatcher.match(uri);
-        SQLiteDatabase database = capstoneStorageConfig.getWritableDatabase();
+        String tableName = "";
 
+        final int match = sUriMatcher.match(uri);
         switch (match) {
             case BOOK_CONTENT_ITEM:
                 selection = BookContentEntry.BOOK_ID + "=? AND " + BookContentEntry.BOOK_SECTION + "=?";
                 String[] array = uri.getPath().split("/");
                 selectionArgs = new String[] {array[array.length - 2], array[array.length - 1]};
             case BOOK_CONTENT_LIST:
-                deleted = database.delete(BookContentEntry.TABLE_NAME, selection, selectionArgs);
+                tableName = BookContentEntry.TABLE_NAME;
                 break;
+
+            case BookPrimeContract.BOOK_PRIME_ITEM:
+                selection = BookPrimeEntry.BOOK_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
+            case BookPrimeContract.BOOK_PRIME_LIST:
+                tableName = BookPrimeEntry.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
 
-        if (deleted != 0) {
+        SQLiteDatabase database = capstoneStorageConfig.getWritableDatabase();
+        int outcome = database.delete(tableName, selection, selectionArgs);
+        if (outcome != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
-        return deleted;
+        return outcome;
     }
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String selection, @Nullable String[] selectionArgs) {
-        int updated = 0;
-        final int match = sUriMatcher.match(uri);
-        SQLiteDatabase database = capstoneStorageConfig.getWritableDatabase();
+        String tableName = "";
 
+        final int match = sUriMatcher.match(uri);
         switch (match) {
             case BOOK_CONTENT_ITEM:
                 selection = BookContentEntry.BOOK_ID + "=? AND " + BookContentEntry.BOOK_SECTION + "=?";
                 String[] array = uri.getPath().split("/");
                 selectionArgs = new String[] {array[array.length - 2], array[array.length - 1]};
             case BOOK_CONTENT_LIST:
-                updated = database.update(BookContentEntry.TABLE_NAME, contentValues, selection, selectionArgs);
+                tableName = BookContentEntry.TABLE_NAME;
                 break;
+
+            case BookPrimeContract.BOOK_PRIME_ITEM:
+                selection = BookPrimeEntry.BOOK_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
+            case BookPrimeContract.BOOK_PRIME_LIST:
+                tableName = BookPrimeEntry.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
 
-        if (updated != 0) {
+        SQLiteDatabase database = capstoneStorageConfig.getWritableDatabase();
+        int outcome = database.update(tableName, contentValues, selection, selectionArgs);
+        if (outcome != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
-        return updated;
+        return outcome;
     }
 }

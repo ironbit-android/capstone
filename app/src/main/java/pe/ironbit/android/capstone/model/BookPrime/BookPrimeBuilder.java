@@ -9,7 +9,7 @@ public class BookPrimeBuilder {
 
     private String image;
 
-    private String book;
+    private String file;
 
     private BookPrimeStatus status;
 
@@ -18,7 +18,7 @@ public class BookPrimeBuilder {
     }
 
     public BookPrimeData build() {
-        return BookPrimeFactory.create(bookId, name, author, image, book, status);
+        return BookPrimeFactory.create(bookId, name, author, image, file, status);
     }
 
     public void clear() {
@@ -26,7 +26,7 @@ public class BookPrimeBuilder {
         name = "";
         author = "";
         image = "";
-        book = "";
+        file = "";
         status = BookPrimeStatus.Null;
     }
 
@@ -50,8 +50,8 @@ public class BookPrimeBuilder {
         return this;
     }
 
-    public BookPrimeBuilder setBook(String book) {
-        this.book = book;
+    public BookPrimeBuilder setFile(String file) {
+        this.file = file;
         return this;
     }
 
