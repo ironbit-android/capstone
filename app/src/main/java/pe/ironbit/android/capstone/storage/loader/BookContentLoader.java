@@ -19,20 +19,27 @@ public class BookContentLoader implements LoaderManager.LoaderCallbacks<Cursor> 
 
     private OnStorageListener listener;
 
-    public BookContentLoader(Context context, OnStorageListener listener) {
+    public BookContentLoader(Context context) {
         this.context = context;
-        this.listener = listener;
+        this.listener = null;
         loadList();
     }
 
-    public void loadList() {
-        bookId = BookContentContract.BookContentEntry.NULL_INDEX;
-        section = BookContentContract.BookContentEntry.NULL_INDEX;
+    public BookContentLoader setListener(OnStorageListener listener) {
+        this.listener = listener;
+        return this;
     }
 
-    public void loadItem(int bookId, int section) {
+    public BookContentLoader loadList() {
+        bookId = BookContentContract.BookContentEntry.NULL_INDEX;
+        section = BookContentContract.BookContentEntry.NULL_INDEX;
+        return this;
+    }
+
+    public BookContentLoader loadItem(int bookId, int section) {
         this.bookId = bookId;
         this.section = section;
+        return this;
     }
 
     @Override
@@ -46,13 +53,15 @@ public class BookContentLoader implements LoaderManager.LoaderCallbacks<Cursor> 
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (cursor != null) {
+        if (cursor != null && listener != null) {
             listener.onEvent(BookContentMapper.generateListData(cursor));
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        listener.onEvent(null);
+        if (listener != null) {
+            listener.onEvent(null);
+        }
     }
 }

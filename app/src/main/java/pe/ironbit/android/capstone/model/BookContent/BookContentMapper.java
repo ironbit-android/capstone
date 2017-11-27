@@ -54,11 +54,6 @@ public class BookContentMapper {
         return resolver.update(uri, generateContentValues(data), null, null);
     }
 
-    public static BookContentData generateItemData(Cursor cursor) {
-        cursor.moveToFirst();
-        return getDataFromCursor(cursor, new BookContentBuilder());
-    }
-
     public static ArrayList<BookContentData> generateListData(Cursor cursor) {
         ArrayList<BookContentData> list = new ArrayList<>();
         BookContentBuilder builder = new BookContentBuilder();

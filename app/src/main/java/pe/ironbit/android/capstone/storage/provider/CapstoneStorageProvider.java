@@ -23,16 +23,16 @@ public class CapstoneStorageProvider extends ContentProvider {
 
     private CapstoneStorageConfig capstoneStorageConfig;
 
-    private static final int BOOK_CONTENT_LIST = 100;
-
-    private static final int BOOK_CONTENT_ITEM = 101;
-
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY, BookContentContract.PATH_TABLE, BOOK_CONTENT_LIST);
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           BookContentContract.PATH_TABLE,
+                           BookContentContract.BOOK_CONTENT_LIST);
 
-        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY, BookContentContract.PATH_TABLE + "/#/#", BOOK_CONTENT_ITEM);
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           BookContentContract.PATH_TABLE + "/#/#",
+                           BookContentContract.BOOK_CONTENT_ITEM);
 
         sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
                            BookPrimeContract.PATH_TABLE,
@@ -54,10 +54,10 @@ public class CapstoneStorageProvider extends ContentProvider {
     public String getType(@NonNull Uri uri) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case BOOK_CONTENT_LIST:
-                return BookContentEntry.CONTENT_LIST_TYPE;
-            case BOOK_CONTENT_ITEM:
+            case BookContentContract.BOOK_CONTENT_ITEM:
                 return BookContentEntry.CONTENT_ITEM_TYPE;
+            case BookContentContract.BOOK_CONTENT_LIST:
+                return BookContentEntry.CONTENT_LIST_TYPE;
 
             case BookPrimeContract.BOOK_PRIME_ITEM:
                 return BookPrimeEntry.CONTENT_ITEM_TYPE;
@@ -75,11 +75,11 @@ public class CapstoneStorageProvider extends ContentProvider {
         String tableName = "";
         int match = sUriMatcher.match(uri);
         switch (match) {
-            case BOOK_CONTENT_ITEM:
+            case BookContentContract.BOOK_CONTENT_ITEM:
                 selection = BookContentEntry.BOOK_ID + "=? AND " + BookContentEntry.BOOK_SECTION + "=?";
                 String[] array = uri.getPath().split("/");
                 selectionArgs = new String[] {array[array.length - 2], array[array.length - 1]};
-            case BOOK_CONTENT_LIST:
+            case BookContentContract.BOOK_CONTENT_LIST:
                 tableName = BookContentEntry.TABLE_NAME;
                 break;
 
@@ -107,7 +107,7 @@ public class CapstoneStorageProvider extends ContentProvider {
 
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case BOOK_CONTENT_LIST:
+            case BookContentContract.BOOK_CONTENT_LIST:
                 tableName = BookContentEntry.TABLE_NAME;
                 break;
             case BookPrimeContract.BOOK_PRIME_LIST:
@@ -134,11 +134,11 @@ public class CapstoneStorageProvider extends ContentProvider {
 
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case BOOK_CONTENT_ITEM:
+            case BookContentContract.BOOK_CONTENT_ITEM:
                 selection = BookContentEntry.BOOK_ID + "=? AND " + BookContentEntry.BOOK_SECTION + "=?";
                 String[] array = uri.getPath().split("/");
                 selectionArgs = new String[] {array[array.length - 2], array[array.length - 1]};
-            case BOOK_CONTENT_LIST:
+            case BookContentContract.BOOK_CONTENT_LIST:
                 tableName = BookContentEntry.TABLE_NAME;
                 break;
 
@@ -167,11 +167,11 @@ public class CapstoneStorageProvider extends ContentProvider {
 
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case BOOK_CONTENT_ITEM:
+            case BookContentContract.BOOK_CONTENT_ITEM:
                 selection = BookContentEntry.BOOK_ID + "=? AND " + BookContentEntry.BOOK_SECTION + "=?";
                 String[] array = uri.getPath().split("/");
                 selectionArgs = new String[] {array[array.length - 2], array[array.length - 1]};
-            case BOOK_CONTENT_LIST:
+            case BookContentContract.BOOK_CONTENT_LIST:
                 tableName = BookContentEntry.TABLE_NAME;
                 break;
 

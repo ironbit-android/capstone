@@ -8,11 +8,15 @@ public class BookContentContract {
 
     public static final String PATH_TABLE = "book_content";
 
+    public static final int BOOK_CONTENT_LIST = 10;
+
+    public static final int BOOK_CONTENT_ITEM = 11;
+
     private BookContentContract() {
     }
 
     public static final class BookContentEntry {
-        public static final int NULL_INDEX = -1;
+        public static final int NULL_INDEX = CapstoneStorageContract.NULL_INDEX;
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(CapstoneStorageContract.BASE_CONTENT_URI, PATH_TABLE);
 

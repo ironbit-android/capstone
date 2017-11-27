@@ -27,11 +27,11 @@ public class CapstoneStorageConfig extends SQLiteOpenHelper {
     }
 
     protected String createBookContextTable() {
-        return "CREATE TABLE " + BookContentEntry.TABLE_NAME + " ("
-               + BookContentEntry.BOOK_ID + " INTEGER NOT NULL, "
-               + BookContentEntry.BOOK_SECTION + " INTEGER NOT NULL, "
-               + BookContentEntry.BOOK_VALUE + " TEXT NOT NULL, "
-               + "PRIMARY KEY (" + BookContentEntry.BOOK_ID + ", " + BookContentEntry.BOOK_SECTION + "));";
+        return "CREATE TABLE " + BookContentEntry.TABLE_NAME + " (" +
+               BookContentEntry.BOOK_ID + " INTEGER NOT NULL, " +
+               BookContentEntry.BOOK_SECTION + " INTEGER NOT NULL, " +
+               BookContentEntry.BOOK_VALUE + " TEXT NOT NULL, " +
+               "PRIMARY KEY (" + BookContentEntry.BOOK_ID + ", " + BookContentEntry.BOOK_SECTION + "));";
     }
 
     protected String createBookPrimeTable() {
