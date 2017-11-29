@@ -27,7 +27,7 @@ public class LabelPrimeParcelable implements Parcelable {
         LabelPrimeBuilder builder = new LabelPrimeBuilder();
 
         builder.setLabelId(parcel.readInt())
-               .setName(parcel.readString());
+               .setLabelName(parcel.readString());
 
         data = builder.build();
     }
@@ -44,6 +44,6 @@ public class LabelPrimeParcelable implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int flags) {
         parcel.writeInt(data.getLabelId());
-        parcel.writeString(data.getName());
+        parcel.writeString(data.getLabelName());
     }
 }

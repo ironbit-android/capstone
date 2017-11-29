@@ -1,20 +1,32 @@
 package pe.ironbit.android.capstone.model.LabelPrime;
 
+import pe.ironbit.android.capstone.storage.contract.LabelPrimeContract.LabelPrimeEntry;
+
 public class LabelPrimeData {
     private int labelId;
 
-    private String name;
+    private String labelName;
 
-    public LabelPrimeData(int labelId, String name) {
+    public LabelPrimeData(int labelId, String labelName) {
         this.labelId = labelId;
-        this.name = name;
+        this.labelName = labelName;
     }
 
     public int getLabelId() {
         return labelId;
     }
 
-    public String getName() {
-        return name;
+    public String getLabelName() {
+        return labelName;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(LabelPrimeEntry.LABEL_ID).append(':').append(labelId).append(',')
+               .append(LabelPrimeEntry.LABEL_NAME).append(':').append(labelName).append(';');
+
+        return builder.toString();
     }
 }

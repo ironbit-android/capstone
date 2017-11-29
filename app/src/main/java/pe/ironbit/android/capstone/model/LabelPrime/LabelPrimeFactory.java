@@ -4,7 +4,7 @@ public class LabelPrimeFactory {
     private LabelPrimeFactory() {
     }
 
-    public static LabelPrimeData create(int labelId, String name) {
-        return new LabelPrimeData(labelId, name);
+    public static LabelPrimeData create(int labelId, String labelName) {
+        return new LabelPrimeData(labelId, labelName);
     }
 }

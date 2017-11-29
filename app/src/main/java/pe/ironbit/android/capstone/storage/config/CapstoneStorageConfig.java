@@ -8,6 +8,7 @@ import pe.ironbit.android.capstone.storage.contract.BookContentContract.BookCont
 import pe.ironbit.android.capstone.storage.contract.BookPrimeContract.BookPrimeEntry;
 import pe.ironbit.android.capstone.storage.contract.BookTableContract.BookTableEntry;
 import pe.ironbit.android.capstone.storage.contract.LabelBookContract.LabelBookEntry;
+import pe.ironbit.android.capstone.storage.contract.LabelPrimeContract.LabelPrimeEntry;
 
 public class CapstoneStorageConfig extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "capstone.db";
@@ -24,6 +25,7 @@ public class CapstoneStorageConfig extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(createBookPrimeTable());
         sqLiteDatabase.execSQL(createBookTableTable());
         sqLiteDatabase.execSQL(createLabelBookTable());
+        sqLiteDatabase.execSQL(createLabelPrimeTable());
     }
 
     @Override
@@ -61,5 +63,11 @@ public class CapstoneStorageConfig extends SQLiteOpenHelper {
                 LabelBookEntry.LABEL_ID + " INTEGER NOT NULL, " +
                 LabelBookEntry.BOOK_ID + " INTEGER NOT NULL, " +
                 "PRIMARY KEY (" + LabelBookEntry.LABEL_ID + ", " + LabelBookEntry.BOOK_ID + "));";
+    }
+
+    protected String createLabelPrimeTable() {
+        return "CREATE TABLE " + LabelPrimeEntry.TABLE_NAME + " (" +
+                LabelPrimeEntry.LABEL_ID + " INTEGER PRIMARY KEY, " +
+                LabelPrimeEntry.LABEL_NAME + " TEXT NOT NULL);";
     }
 }

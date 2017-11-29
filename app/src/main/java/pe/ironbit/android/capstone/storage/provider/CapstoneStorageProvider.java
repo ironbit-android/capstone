@@ -21,6 +21,8 @@ import pe.ironbit.android.capstone.storage.contract.BookTableContract.BookTableE
 import pe.ironbit.android.capstone.storage.contract.CapstoneStorageContract;
 import pe.ironbit.android.capstone.storage.contract.LabelBookContract;
 import pe.ironbit.android.capstone.storage.contract.LabelBookContract.LabelBookEntry;
+import pe.ironbit.android.capstone.storage.contract.LabelPrimeContract;
+import pe.ironbit.android.capstone.storage.contract.LabelPrimeContract.LabelPrimeEntry;
 
 public class CapstoneStorageProvider extends ContentProvider {
     private static final String TAG = CapstoneStorageProvider.class.getSimpleName();
@@ -61,6 +63,14 @@ public class CapstoneStorageProvider extends ContentProvider {
         sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
                            LabelBookContract.PATH_TABLE + "/#/#",
                            LabelBookContract.LABEL_BOOK_ITEM);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           LabelPrimeContract.PATH_TABLE,
+                           LabelPrimeContract.LABEL_PRIME_LIST);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           LabelPrimeContract.PATH_TABLE + "/#",
+                           LabelPrimeContract.LABEL_PRIME_ITEM);
     }
 
     @Override
@@ -93,6 +103,11 @@ public class CapstoneStorageProvider extends ContentProvider {
                 return LabelBookEntry.CONTENT_ITEM_TYPE;
             case LabelBookContract.LABEL_BOOK_LIST:
                 return LabelBookEntry.CONTENT_LIST_TYPE;
+
+            case LabelPrimeContract.LABEL_PRIME_ITEM:
+                return LabelPrimeEntry.CONTENT_ITEM_TYPE;
+            case LabelPrimeContract.LABEL_PRIME_LIST:
+                return LabelPrimeEntry.CONTENT_LIST_TYPE;
 
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
@@ -136,6 +151,13 @@ public class CapstoneStorageProvider extends ContentProvider {
                 tableName = LabelBookEntry.TABLE_NAME;
                 break;
 
+            case LabelPrimeContract.LABEL_PRIME_ITEM:
+                selection = LabelPrimeEntry.LABEL_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
+            case LabelPrimeContract.LABEL_PRIME_LIST:
+                tableName = LabelPrimeEntry.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
@@ -167,6 +189,10 @@ public class CapstoneStorageProvider extends ContentProvider {
 
             case LabelBookContract.LABEL_BOOK_LIST:
                 tableName = LabelBookEntry.TABLE_NAME;
+                break;
+
+            case LabelPrimeContract.LABEL_PRIME_LIST:
+                tableName = LabelPrimeEntry.TABLE_NAME;
                 break;
 
             default:
@@ -221,6 +247,13 @@ public class CapstoneStorageProvider extends ContentProvider {
                 tableName = LabelBookEntry.TABLE_NAME;
                 break;
 
+            case LabelPrimeContract.LABEL_PRIME_ITEM:
+                selection = LabelPrimeEntry.LABEL_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
+            case LabelPrimeContract.LABEL_PRIME_LIST:
+                tableName = LabelPrimeEntry.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
@@ -260,6 +293,13 @@ public class CapstoneStorageProvider extends ContentProvider {
                 selectionArgs = new String[] {array[array.length - 2], array[array.length - 1]};
             case BookTableContract.BOOK_TABLE_LIST:
                 tableName = BookTableEntry.TABLE_NAME;
+                break;
+
+            case LabelPrimeContract.LABEL_PRIME_ITEM:
+                selection = LabelPrimeEntry.LABEL_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
+            case LabelPrimeContract.LABEL_PRIME_LIST:
+                tableName = LabelPrimeEntry.TABLE_NAME;
                 break;
 
             default:
