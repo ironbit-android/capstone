@@ -23,16 +23,19 @@ public class BookPrimeLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         listener = null;
     }
 
-    public void setListener(OnStorageListener listener) {
+    public BookPrimeLoader setListener(OnStorageListener listener) {
         this.listener = listener;
+        return this;
     }
 
-    public void loadList() {
+    public BookPrimeLoader loadList() {
         bookId = BookContentEntry.NULL_INDEX;
+        return this;
     }
 
-    public void loadItem(int bookId) {
+    public BookPrimeLoader loadItem(int bookId) {
         this.bookId = bookId;
+        return this;
     }
 
     @Override

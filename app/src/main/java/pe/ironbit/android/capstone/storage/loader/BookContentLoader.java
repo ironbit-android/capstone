@@ -7,7 +7,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 
 import pe.ironbit.android.capstone.model.BookContent.BookContentMapper;
-import pe.ironbit.android.capstone.storage.contract.BookContentContract;
+import pe.ironbit.android.capstone.storage.contract.BookContentContract.BookContentEntry;
 import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
 
 public class BookContentLoader implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -31,8 +31,8 @@ public class BookContentLoader implements LoaderManager.LoaderCallbacks<Cursor> 
     }
 
     public BookContentLoader loadList() {
-        bookId = BookContentContract.BookContentEntry.NULL_INDEX;
-        section = BookContentContract.BookContentEntry.NULL_INDEX;
+        bookId = BookContentEntry.NULL_INDEX;
+        section = BookContentEntry.NULL_INDEX;
         return this;
     }
 
@@ -44,7 +44,7 @@ public class BookContentLoader implements LoaderManager.LoaderCallbacks<Cursor> 
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        if (bookId == BookContentContract.BookContentEntry.NULL_INDEX) {
+        if (bookId == BookContentEntry.NULL_INDEX) {
             return BookContentMapper.query(context);
         } else {
             return BookContentMapper.query(context, bookId, section);

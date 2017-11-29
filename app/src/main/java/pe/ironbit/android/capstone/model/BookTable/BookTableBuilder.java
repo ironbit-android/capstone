@@ -1,11 +1,11 @@
 package pe.ironbit.android.capstone.model.BookTable;
 
 public class BookTableBuilder {
-    int bookId;
+    private int bookId;
 
-    int section;
+    private int section;
 
-    String value;
+    private String value;
 
     public BookTableBuilder() {
         clear();
@@ -15,7 +15,7 @@ public class BookTableBuilder {
         return BookTableFactory.create(bookId, section, value);
     }
 
-    void clear() {
+    public void clear() {
         bookId = -1;
         section = -1;
         value = "";
