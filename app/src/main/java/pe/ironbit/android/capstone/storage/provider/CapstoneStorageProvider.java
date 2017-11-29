@@ -16,6 +16,8 @@ import pe.ironbit.android.capstone.storage.contract.BookContentContract;
 import pe.ironbit.android.capstone.storage.contract.BookContentContract.BookContentEntry;
 import pe.ironbit.android.capstone.storage.contract.BookPrimeContract;
 import pe.ironbit.android.capstone.storage.contract.BookPrimeContract.BookPrimeEntry;
+import pe.ironbit.android.capstone.storage.contract.BookTableContract;
+import pe.ironbit.android.capstone.storage.contract.BookTableContract.BookTableEntry;
 import pe.ironbit.android.capstone.storage.contract.CapstoneStorageContract;
 
 public class CapstoneStorageProvider extends ContentProvider {
@@ -41,6 +43,14 @@ public class CapstoneStorageProvider extends ContentProvider {
         sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
                            BookPrimeContract.PATH_TABLE + "/#",
                            BookPrimeContract.BOOK_PRIME_ITEM);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           BookTableContract.PATH_TABLE,
+                           BookTableContract.BOOK_TABLE_LIST);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           BookTableContract.PATH_TABLE + "/#/#",
+                           BookTableContract.BOOK_TABLE_ITEM);
     }
 
     @Override
@@ -63,6 +73,11 @@ public class CapstoneStorageProvider extends ContentProvider {
                 return BookPrimeEntry.CONTENT_ITEM_TYPE;
             case BookPrimeContract.BOOK_PRIME_LIST:
                 return BookPrimeEntry.CONTENT_LIST_TYPE;
+
+            case BookTableContract.BOOK_TABLE_ITEM:
+                return BookTableEntry.CONTENT_ITEM_TYPE;
+            case BookTableContract.BOOK_TABLE_LIST:
+                return BookTableEntry.CONTENT_LIST_TYPE;
 
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
@@ -90,6 +105,14 @@ public class CapstoneStorageProvider extends ContentProvider {
                 tableName = BookPrimeEntry.TABLE_NAME;
                 break;
 
+            case BookTableContract.BOOK_TABLE_ITEM:
+                selection = BookTableEntry.BOOK_ID + "=? AND " + BookTableEntry.BOOK_SECTION + "=?";
+                array = uri.getPath().split("/");
+                selectionArgs = new String[]{array[array.length - 2], array[array.length - 1]};
+            case BookTableContract.BOOK_TABLE_LIST:
+                tableName = BookTableEntry.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
@@ -110,9 +133,15 @@ public class CapstoneStorageProvider extends ContentProvider {
             case BookContentContract.BOOK_CONTENT_LIST:
                 tableName = BookContentEntry.TABLE_NAME;
                 break;
+
             case BookPrimeContract.BOOK_PRIME_LIST:
                 tableName = BookPrimeEntry.TABLE_NAME;
                 break;
+
+            case BookTableContract.BOOK_TABLE_LIST:
+                tableName = BookTableEntry.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
         }
@@ -149,6 +178,14 @@ public class CapstoneStorageProvider extends ContentProvider {
                 tableName = BookPrimeEntry.TABLE_NAME;
                 break;
 
+            case BookTableContract.BOOK_TABLE_ITEM:
+                selection = BookTableEntry.BOOK_ID + "=? AND " + BookTableEntry.BOOK_SECTION + "=?";
+                array = uri.getPath().split("/");
+                selectionArgs = new String[] {array[array.length - 2], array[array.length - 1]};
+            case BookTableContract.BOOK_TABLE_LIST:
+                tableName = BookTableEntry.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
@@ -180,6 +217,14 @@ public class CapstoneStorageProvider extends ContentProvider {
                 selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
             case BookPrimeContract.BOOK_PRIME_LIST:
                 tableName = BookPrimeEntry.TABLE_NAME;
+                break;
+
+            case BookTableContract.BOOK_TABLE_ITEM:
+                selection = BookTableEntry.BOOK_ID + "=? AND " + BookTableEntry.BOOK_SECTION + "=?";
+                array = uri.getPath().split("/");
+                selectionArgs = new String[] {array[array.length - 2], array[array.length - 1]};
+            case BookTableContract.BOOK_TABLE_LIST:
+                tableName = BookTableEntry.TABLE_NAME;
                 break;
 
             default:
