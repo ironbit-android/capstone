@@ -19,6 +19,8 @@ import pe.ironbit.android.capstone.storage.contract.BookPrimeContract.BookPrimeE
 import pe.ironbit.android.capstone.storage.contract.BookTableContract;
 import pe.ironbit.android.capstone.storage.contract.BookTableContract.BookTableEntry;
 import pe.ironbit.android.capstone.storage.contract.CapstoneStorageContract;
+import pe.ironbit.android.capstone.storage.contract.LabelBookContract;
+import pe.ironbit.android.capstone.storage.contract.LabelBookContract.LabelBookEntry;
 
 public class CapstoneStorageProvider extends ContentProvider {
     private static final String TAG = CapstoneStorageProvider.class.getSimpleName();
@@ -51,6 +53,14 @@ public class CapstoneStorageProvider extends ContentProvider {
         sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
                            BookTableContract.PATH_TABLE + "/#/#",
                            BookTableContract.BOOK_TABLE_ITEM);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           LabelBookContract.PATH_TABLE,
+                           LabelBookContract.LABEL_BOOK_LIST);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           LabelBookContract.PATH_TABLE + "/#/#",
+                           LabelBookContract.LABEL_BOOK_ITEM);
     }
 
     @Override
@@ -78,6 +88,11 @@ public class CapstoneStorageProvider extends ContentProvider {
                 return BookTableEntry.CONTENT_ITEM_TYPE;
             case BookTableContract.BOOK_TABLE_LIST:
                 return BookTableEntry.CONTENT_LIST_TYPE;
+
+            case LabelBookContract.LABEL_BOOK_ITEM:
+                return LabelBookEntry.CONTENT_ITEM_TYPE;
+            case LabelBookContract.LABEL_BOOK_LIST:
+                return LabelBookEntry.CONTENT_LIST_TYPE;
 
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
@@ -113,6 +128,14 @@ public class CapstoneStorageProvider extends ContentProvider {
                 tableName = BookTableEntry.TABLE_NAME;
                 break;
 
+            case LabelBookContract.LABEL_BOOK_ITEM:
+                selection = LabelBookEntry.LABEL_ID + "=? AND " + LabelBookEntry.BOOK_ID + "=?";
+                array = uri.getPath().split("/");
+                selectionArgs = new String[]{array[array.length - 2], array[array.length - 1]};
+            case LabelBookContract.LABEL_BOOK_LIST:
+                tableName = LabelBookEntry.TABLE_NAME;
+                break;
+
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
@@ -140,6 +163,10 @@ public class CapstoneStorageProvider extends ContentProvider {
 
             case BookTableContract.BOOK_TABLE_LIST:
                 tableName = BookTableEntry.TABLE_NAME;
+                break;
+
+            case LabelBookContract.LABEL_BOOK_LIST:
+                tableName = LabelBookEntry.TABLE_NAME;
                 break;
 
             default:
@@ -184,6 +211,14 @@ public class CapstoneStorageProvider extends ContentProvider {
                 selectionArgs = new String[] {array[array.length - 2], array[array.length - 1]};
             case BookTableContract.BOOK_TABLE_LIST:
                 tableName = BookTableEntry.TABLE_NAME;
+                break;
+
+            case LabelBookContract.LABEL_BOOK_ITEM:
+                selection = LabelBookEntry.LABEL_ID + "=? AND " + LabelBookEntry.BOOK_ID + "=?";
+                array = uri.getPath().split("/");
+                selectionArgs = new String[]{array[array.length - 2], array[array.length - 1]};
+            case LabelBookContract.LABEL_BOOK_LIST:
+                tableName = LabelBookEntry.TABLE_NAME;
                 break;
 
             default:

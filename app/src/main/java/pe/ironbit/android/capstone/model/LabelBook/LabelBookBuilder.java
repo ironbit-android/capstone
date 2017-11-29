@@ -13,7 +13,7 @@ public class LabelBookBuilder {
         return LabelBookFactory.create(labelId, bookId);
     }
 
-    void clear() {
+    public void clear() {
         labelId = -1;
         bookId = -1;
     }
