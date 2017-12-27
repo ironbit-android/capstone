@@ -15,6 +15,15 @@ public class BookPrimeData {
 
     private BookPrimeStatus status;
 
+    public BookPrimeData() {
+        bookId = -1;
+        name = "";
+        author = "";
+        image = "";
+        file = "";
+        status = BookPrimeStatus.Global;
+    }
+
     public BookPrimeData(int bookId, String name, String author, String image, String file, BookPrimeStatus status) {
         this.bookId = bookId;
         this.name = name;
@@ -52,12 +61,15 @@ public class BookPrimeData {
     public String toString() {
         StringBuilder builder = new StringBuilder();
 
-        builder.append(BookPrimeEntry.BOOK_ID).append(':').append(bookId).append(',')
-               .append(BookPrimeEntry.BOOK_NAME).append(':').append(name).append(',')
-               .append(BookPrimeEntry.BOOK_AUTHOR).append(':').append(author).append(',')
-               .append(BookPrimeEntry.BOOK_IMAGE).append(':').append(image).append(',')
-               .append(BookPrimeEntry.BOOK_FILE).append(':').append(file).append(',')
-               .append(BookPrimeEntry.BOOK_STATUS).append(':').append(status).append(';');
+        builder.append(getClass().getSimpleName())
+               .append('{')
+               .append(BookPrimeEntry.BOOK_ID).append('=').append(bookId).append(',')
+               .append(BookPrimeEntry.BOOK_NAME).append('=').append(name).append(',')
+               .append(BookPrimeEntry.BOOK_AUTHOR).append('=').append(author).append(',')
+               .append(BookPrimeEntry.BOOK_IMAGE).append('=').append(image).append(',')
+               .append(BookPrimeEntry.BOOK_FILE).append('=').append(file).append(',')
+               .append(BookPrimeEntry.BOOK_STATUS).append('=').append(status)
+               .append('}');
 
         return builder.toString();
     }

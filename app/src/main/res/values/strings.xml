@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Capstone</string>
+
+    <!-- FireBase Storage -->
+    <string name="storage_bucket">gs://ironbit-capstone.appspot.com</string>
+
+    <string name="library_file_size">500</string>
+    <string name="library_file_name">library.json</string>
+
+    <string name="book_metadata_file_size">250</string>
+    <string name="book_metadata_file_name">meta.json</string>
+
+    <string name="image_file_path_suffix">.png</string>
+    <string name="book_folder_path_prefix">book-</string>
+
+    <string name="book_epub_file_size">200000</string>
+    <string name="book_cover_image_size">250000</string>
 </resources>
