@@ -20,6 +20,10 @@ allprojects {
             url "https://maven.google.com"
         }
     }
+
+    ext {
+        androidSupportVersion = "27.0.2"
+    }
 }
 
 task clean(type: Delete) {
