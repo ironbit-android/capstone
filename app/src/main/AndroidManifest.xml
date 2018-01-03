@@ -11,18 +11,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+
+        <provider
+            android:name=".storage.provider.CapstoneStorageProvider"
+            android:authorities="pe.ironbit.android.capstone"
+            android:exported="false" />
+
+        <activity android:name=".screen.activity.LibraryActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <provider
-            android:authorities="pe.ironbit.android.capstone"
-            android:name=".storage.provider.CapstoneStorageProvider"
-            android:exported="false" />
 
     </application>
 
