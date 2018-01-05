@@ -31,6 +31,6 @@
 
     <string name="manager">Manager</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Message System -->
+    <string name="notify_internet_not_working">Internet Connection Problems</string>
 </resources>
