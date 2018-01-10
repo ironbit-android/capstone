@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Book Menu -->
+    <dimen name="book_menu_card_height">200dp</dimen>
+
+    <dimen name="book_menu_image_height">150dp</dimen>
+
+    <dimen name="book_menu_card_corner_radius">4dp</dimen>
+
+    <dimen name="book_menu_card_margin">4dp</dimen>
+
+    <dimen name="book_menu_recyclerview_margin">4dp</dimen>
+
+    <dimen name="book_menu_book_icon_size">25dp</dimen>
+
+    <dimen name="book_menu_book_icon_margin">8dp</dimen>
+</resources>

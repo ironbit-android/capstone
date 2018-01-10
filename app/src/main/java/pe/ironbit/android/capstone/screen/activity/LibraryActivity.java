@@ -88,10 +88,13 @@ public class LibraryActivity extends AppCompatActivity {
     private void loadBookMenuScreen() {
         FragmentManager manager = getSupportFragmentManager();
 
-        Fragment bookMenuFragment = BookMenuFragment.newInstance(createBookParcelableList(bookPrimeDataList));
-        manager.beginTransaction()
-               .add(R.id.layout_library_book_menu, bookMenuFragment, BookMenuFragment.class.getSimpleName())
-               .commit();
+        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+        if (bookMenuFragment == null) {
+            bookMenuFragment = BookMenuFragment.newInstance(createBookParcelableList(bookPrimeDataList));
+            manager.beginTransaction()
+                   .add(R.id.layout_library_book_menu, bookMenuFragment, BookMenuFragment.class.getSimpleName())
+                   .commit();
+        }
     }
 
     private void loadLibraryDataFromFirebase() {
