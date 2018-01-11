@@ -11,7 +11,5 @@
 
     <dimen name="book_menu_recyclerview_margin">4dp</dimen>
 
-    <dimen name="book_menu_book_icon_size">25dp</dimen>
-
-    <dimen name="book_menu_book_icon_margin">8dp</dimen>
+    <dimen name="book_menu_book_icon_margin">12dp</dimen>
 </resources>

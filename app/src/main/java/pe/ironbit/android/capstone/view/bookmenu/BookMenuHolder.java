@@ -12,6 +12,7 @@ import pe.ironbit.android.capstone.event.base.BaseListener;
 import pe.ironbit.android.capstone.firebase.image.ImageLoader;
 import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
+import pe.ironbit.android.capstone.model.BookPrime.BookPrimeStatus;
 
 public class BookMenuHolder extends RecyclerView.ViewHolder {
     private Integer position;
@@ -26,6 +27,9 @@ public class BookMenuHolder extends RecyclerView.ViewHolder {
 
     @BindView(R.id.recyclerview_book_menu_book_author)
     TextView bookAuthor;
+
+    @BindView(R.id.recyclerview_book_menu_book_icon)
+    ImageView bookIcon;
 
     public BookMenuHolder(View view, final BaseListener listener) {
         super(view);
@@ -50,5 +54,9 @@ public class BookMenuHolder extends RecyclerView.ViewHolder {
         ImageLoader.init(service)
                    .into(bookImage)
                    .load(book.getBookId());
+
+        if (book.getStatus() != BookPrimeStatus.Global) {
+            bookIcon.setVisibility(View.GONE);
+        }
     }
 }
