@@ -7,7 +7,6 @@
 
     <dimen name="general_margin_horizontal_between_items">8dp</dimen>
 
-
     <!-- Book Menu -->
     <dimen name="book_menu_card_height">200dp</dimen>
 
@@ -20,4 +19,10 @@
     <dimen name="book_menu_recyclerview_margin">4dp</dimen>
 
     <dimen name="book_menu_book_icon_margin">12dp</dimen>
+
+    <!-- Dialog -->
+    <dimen name="dialog_margin">16dp</dimen>
+
+    <!-- Text -->
+    <dimen name="text_size">17sp</dimen>
 </resources>

@@ -34,6 +34,17 @@
     <!-- Message System -->
     <string name="notify_internet_not_working">Internet Connection Problems</string>
 
+    <!-- Manager Label -->
+    <string name="manager_label_menu_add_title">Add Label</string>
+
+    <string name="manager_label_create_label_title">Create Label</string>
+
+    <string name="manager_label_create_label_accept_message">Label created</string>
+
+    <string name="manager_label_create_label_problem_message">Label cannot be created</string>
+
+    <string name="manager_label_create_cancelled_message">Create label cancelled</string>
+
     <!-- Delete Label Dialog -->
     <string name="delete_label_dialog_message">Delete Label?</string>
 

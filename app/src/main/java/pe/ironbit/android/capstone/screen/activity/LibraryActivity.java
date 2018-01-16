@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -50,12 +51,16 @@ public class LibraryActivity extends AppCompatActivity {
     @BindView(R.id.activity_library_drawerlayout)
     DrawerLayout drawerLayout;
 
+    @BindView(R.id.activity_library_toolbar)
+    Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
 
         configureVariables();
+        configureActivity();
 
         loadMainMenu();
         loadBookDataForBookMenu();
@@ -64,6 +69,10 @@ public class LibraryActivity extends AppCompatActivity {
     public void onClickManagerOption(View view) {
         closeNavigationDrawer();
         changeScreenToManagerLabel();
+    }
+
+    public View getPrimeView() {
+        return primeView;
     }
 
     private void closeNavigationDrawer() {
@@ -99,6 +108,10 @@ public class LibraryActivity extends AppCompatActivity {
         bookPrimeDataList = new ArrayList<>();
         storageService = new StorageService(getApplicationContext());
         ButterKnife.bind(this);
+    }
+
+    private void configureActivity() {
+        setSupportActionBar(toolbar);
     }
 
     private void loadMainMenu() {

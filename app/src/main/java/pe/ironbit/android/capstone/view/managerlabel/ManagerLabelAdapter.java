@@ -54,6 +54,10 @@ public class ManagerLabelAdapter extends RecyclerView.Adapter<ManagerLabelHolder
         return list.get(index);
     }
 
+    public List<LabelPrimeData> getList() {
+        return list;
+    }
+
     public void update(List<LabelPrimeData> list) {
         if (list == null) {
             return;

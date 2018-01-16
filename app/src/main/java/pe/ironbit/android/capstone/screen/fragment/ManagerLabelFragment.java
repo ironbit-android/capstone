@@ -1,11 +1,16 @@
 package pe.ironbit.android.capstone.screen.fragment;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,7 +22,10 @@ import butterknife.Unbinder;
 import pe.ironbit.android.capstone.R;
 import pe.ironbit.android.capstone.model.LabelBook.LabelBookMapper;
 import pe.ironbit.android.capstone.model.LabelPrime.LabelPrimeData;
+import pe.ironbit.android.capstone.model.LabelPrime.LabelPrimeFactory;
 import pe.ironbit.android.capstone.model.LabelPrime.LabelPrimeMapper;
+import pe.ironbit.android.capstone.screen.activity.LibraryActivity;
+import pe.ironbit.android.capstone.screen.dialog.CreateLabelDialog;
 import pe.ironbit.android.capstone.screen.dialog.DeleteLabelDialog;
 import pe.ironbit.android.capstone.storage.contract.LabelPrimeContract;
 import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
@@ -41,6 +49,7 @@ public class ManagerLabelFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_manager_label, container, false);
 
         unbinder = ButterKnife.bind(this, view);
+        setHasOptionsMenu(true);
 
         loadScreen();
         loadData();
@@ -55,10 +64,21 @@ public class ManagerLabelFragment extends Fragment {
         unbinder.unbind();
     }
 
-    private void onAddLabelAction() {
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.manager_label_menu, menu);
     }
 
-    private void onEditLabelAction(Integer position) {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.manager_label_menu_add_label) {
+            performCreateLabelDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void onEditLabelAction(Integer index) {
     }
 
     private void onEraseLabelAction(final Integer index) {
@@ -70,6 +90,45 @@ public class ManagerLabelFragment extends Fragment {
         LabelPrimeData data = adapter.eraseItem(index);
         LabelPrimeMapper.delete(getActivity().getContentResolver(), data.getLabelId());
         LabelBookMapper.deleteByLabelIdentifier(getActivity().getContentResolver(), data.getLabelId());
+    }
+
+    public void doOnCreateLabelAcceptAction(final Integer labelId, final String labelName) {
+        boolean valid = true;
+        if ((labelName != null) && (!labelName.isEmpty())) {
+            for (LabelPrimeData data : adapter.getList()) {
+                if (TextUtils.equals(data.getLabelName(), labelName)) {
+                    valid = false;
+                    break;
+                }
+            }
+        } else {
+            valid = false;
+        }
+
+        View view = ((LibraryActivity)getActivity()).getPrimeView();
+        if (valid) {
+            LabelPrimeMapper.insert(getActivity().getContentResolver(), LabelPrimeFactory.create(labelId, labelName));
+            Snackbar.make(view, getString(R.string.manager_label_create_label_accept_message), Snackbar.LENGTH_LONG).show();
+        } else {
+            Snackbar.make(view, getString(R.string.manager_label_create_label_problem_message), Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    public void doOnCreateLabelCancelAction() {
+        View view = ((LibraryActivity)getActivity()).getPrimeView();
+        Snackbar.make(view, getString(R.string.manager_label_create_cancelled_message), Snackbar.LENGTH_LONG).show();
+    }
+
+    private void performCreateLabelDialog() {
+        int newLabelId = 1;
+        for (LabelPrimeData data : adapter.getList()) {
+            if (newLabelId <= data.getLabelId()) {
+                newLabelId = data.getLabelId() + 1;
+            }
+        }
+
+        DialogFragment dialog = CreateLabelDialog.newInstance(newLabelId);
+        dialog.show(getFragmentManager(), CreateLabelDialog.class.getSimpleName());
     }
 
     private void update(List list) {
