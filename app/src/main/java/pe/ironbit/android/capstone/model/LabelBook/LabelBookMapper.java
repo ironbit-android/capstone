@@ -3,13 +3,14 @@ package pe.ironbit.android.capstone.model.LabelBook;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 
 import java.util.ArrayList;
 
+import pe.ironbit.android.capstone.storage.contract.LabelBookContract;
 import pe.ironbit.android.capstone.storage.contract.LabelBookContract.LabelBookEntry;
 
 public class LabelBookMapper {
@@ -33,6 +34,24 @@ public class LabelBookMapper {
         return new CursorLoader(context, uri, projection, null, null , null);
     }
 
+    public static Loader<Cursor> queryByLabelIdentifier(Context context, int identifier) {
+        Uri uri = LabelBookEntry.CONTENT_URI.buildUpon()
+                                            .appendPath(LabelBookContract.PATH_LABEL_BOOK_LABEL_IDEN)
+                                            .appendPath(String.valueOf(identifier))
+                                            .build();
+
+        return new CursorLoader(context, uri, projection, null, null , null);
+    }
+
+    public static Loader<Cursor> queryByBookIdentifier(Context context, int identifier) {
+        Uri uri = LabelBookEntry.CONTENT_URI.buildUpon()
+                                            .appendPath(LabelBookContract.PATH_LABEL_BOOK_BOOK_IDEN)
+                                            .appendPath(String.valueOf(identifier))
+                                            .build();
+
+        return new CursorLoader(context, uri, projection, null, null , null);
+    }
+
     public static Uri insert(ContentResolver resolver, LabelBookData data) {
         return resolver.insert(LabelBookEntry.CONTENT_URI, generateContentValues(data));
     }
@@ -41,6 +60,24 @@ public class LabelBookMapper {
         Uri uri = LabelBookEntry.CONTENT_URI.buildUpon().appendPath(String.valueOf(data.getLabelId()))
                                                         .appendPath(String.valueOf(data.getBookId()))
                                                         .build();
+
+        return resolver.delete(uri, null, null);
+    }
+
+    public static int deleteByLabelIdentifier(ContentResolver resolver, int identifier) {
+        Uri uri = LabelBookEntry.CONTENT_URI.buildUpon()
+                                            .appendPath(LabelBookContract.PATH_LABEL_BOOK_LABEL_IDEN)
+                                            .appendPath(String.valueOf(identifier))
+                                            .build();
+
+        return resolver.delete(uri, null, null);
+    }
+
+    public static int deleteByBookIdentifier(ContentResolver resolver, int identifier) {
+        Uri uri = LabelBookEntry.CONTENT_URI.buildUpon()
+                                            .appendPath(LabelBookContract.PATH_LABEL_BOOK_BOOK_IDEN)
+                                            .appendPath(String.valueOf(identifier))
+                                            .build();
 
         return resolver.delete(uri, null, null);
     }

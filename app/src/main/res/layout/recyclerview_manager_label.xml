@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/general_margin_vertical_between_items">
+
+    <TextView
+        android:id="@+id/recyclerview_manager_label_name"
+        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/general_margin_horizontal_between_items"
+        android:layout_marginRight="@dimen/general_margin_horizontal_between_items"
+        tools:text="Sample Label"/>
+
+    <ImageView
+        android:id="@+id/recyclerview_manager_label_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/general_margin_horizontal_between_items"
+        android:layout_marginRight="@dimen/general_margin_horizontal_between_items"
+        android:src="@mipmap/ic_edit_black_24dp"/>
+
+    <ImageView
+        android:id="@+id/recyclerview_manager_label_erase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="@dimen/general_margin_horizontal_between_items"
+        android:layout_marginRight="@dimen/general_margin_horizontal_between_items"
+        android:src="@mipmap/ic_delete_black_24dp"/>
+
+</LinearLayout>

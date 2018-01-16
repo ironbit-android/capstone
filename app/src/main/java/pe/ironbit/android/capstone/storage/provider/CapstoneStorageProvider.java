@@ -61,6 +61,14 @@ public class CapstoneStorageProvider extends ContentProvider {
                            LabelBookContract.LABEL_BOOK_LIST);
 
         sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           LabelBookContract.PATH_TABLE + "/" + LabelBookContract.PATH_LABEL_BOOK_LABEL_IDEN + "/#",
+                           LabelBookContract.LABEL_BOOK_LABEL_IDEN);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           LabelBookContract.PATH_TABLE + "/" + LabelBookContract.PATH_LABEL_BOOK_BOOK_IDEN + "/#",
+                           LabelBookContract.LABEL_BOOK_BOOK_IDEN);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
                            LabelBookContract.PATH_TABLE + "/#/#",
                            LabelBookContract.LABEL_BOOK_ITEM);
 
@@ -103,6 +111,10 @@ public class CapstoneStorageProvider extends ContentProvider {
                 return LabelBookEntry.CONTENT_ITEM_TYPE;
             case LabelBookContract.LABEL_BOOK_LIST:
                 return LabelBookEntry.CONTENT_LIST_TYPE;
+            case LabelBookContract.LABEL_BOOK_LABEL_IDEN:
+                return LabelBookEntry.CONTENT_LABEL_IDEN_TYPE;
+            case LabelBookContract.LABEL_BOOK_BOOK_IDEN:
+                return LabelBookEntry.CONTENT_BOOK_IDEN_TYPE;
 
             case LabelPrimeContract.LABEL_PRIME_ITEM:
                 return LabelPrimeEntry.CONTENT_ITEM_TYPE;
@@ -148,6 +160,16 @@ public class CapstoneStorageProvider extends ContentProvider {
                 array = uri.getPath().split("/");
                 selectionArgs = new String[]{array[array.length - 2], array[array.length - 1]};
             case LabelBookContract.LABEL_BOOK_LIST:
+                tableName = LabelBookEntry.TABLE_NAME;
+                break;
+            case LabelBookContract.LABEL_BOOK_LABEL_IDEN:
+                selection = LabelBookEntry.LABEL_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
+                tableName = LabelBookEntry.TABLE_NAME;
+                break;
+            case LabelBookContract.LABEL_BOOK_BOOK_IDEN:
+                selection = LabelBookEntry.BOOK_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
                 tableName = LabelBookEntry.TABLE_NAME;
                 break;
 
@@ -244,6 +266,17 @@ public class CapstoneStorageProvider extends ContentProvider {
                 array = uri.getPath().split("/");
                 selectionArgs = new String[]{array[array.length - 2], array[array.length - 1]};
             case LabelBookContract.LABEL_BOOK_LIST:
+                tableName = LabelBookEntry.TABLE_NAME;
+                break;
+
+            case LabelBookContract.LABEL_BOOK_LABEL_IDEN:
+                selection = LabelBookEntry.LABEL_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
+                tableName = LabelBookEntry.TABLE_NAME;
+                break;
+            case LabelBookContract.LABEL_BOOK_BOOK_IDEN:
+                selection = LabelBookEntry.BOOK_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
                 tableName = LabelBookEntry.TABLE_NAME;
                 break;
 

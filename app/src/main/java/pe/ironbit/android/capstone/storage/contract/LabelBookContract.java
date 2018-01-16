@@ -12,6 +12,14 @@ public class LabelBookContract {
 
     public static final int LABEL_BOOK_ITEM = 41;
 
+    public static final int LABEL_BOOK_LABEL_IDEN = 42;
+
+    public static final int LABEL_BOOK_BOOK_IDEN = 43;
+
+    public static final String PATH_LABEL_BOOK_LABEL_IDEN = "label_iden";
+
+    public static final String PATH_LABEL_BOOK_BOOK_IDEN = "book_iden";
+
     private LabelBookContract() {
     }
 
@@ -25,6 +33,12 @@ public class LabelBookContract {
 
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CapstoneStorageContract.CONTENT_AUTHORITY + "/" + PATH_TABLE;
+
+        public static final String CONTENT_LABEL_IDEN_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CapstoneStorageContract.CONTENT_AUTHORITY + "/" + PATH_TABLE;
+
+        public static final String CONTENT_BOOK_IDEN_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CapstoneStorageContract.CONTENT_AUTHORITY + "/" + PATH_TABLE;
 
         public static final String TABLE_NAME = "label_book";
 

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- General Dimension -->
+    <dimen name="general_margin_in_borders">8dp</dimen>
+
+    <dimen name="general_margin_vertical_between_items">4dp</dimen>
+
+    <dimen name="general_margin_horizontal_between_items">8dp</dimen>
+
+
     <!-- Book Menu -->
     <dimen name="book_menu_card_height">200dp</dimen>
 

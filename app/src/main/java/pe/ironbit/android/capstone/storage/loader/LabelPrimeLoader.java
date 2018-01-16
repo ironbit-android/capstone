@@ -1,10 +1,10 @@
 package pe.ironbit.android.capstone.storage.loader;
 
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 
 import pe.ironbit.android.capstone.model.LabelPrime.LabelPrimeMapper;
 import pe.ironbit.android.capstone.storage.contract.LabelPrimeContract.LabelPrimeEntry;
@@ -39,7 +39,7 @@ public class LabelPrimeLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (labelId == LabelPrimeEntry.NULL_INDEX) {
             return LabelPrimeMapper.query(context);
         } else {
@@ -48,9 +48,9 @@ public class LabelPrimeLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (cursor != null && listener != null) {
-            listener.onEvent(LabelPrimeMapper.generateListData(cursor));
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null && listener != null) {
+            listener.onEvent(LabelPrimeMapper.generateListData(data));
         }
     }
 

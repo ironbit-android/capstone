@@ -33,4 +33,12 @@
 
     <!-- Message System -->
     <string name="notify_internet_not_working">Internet Connection Problems</string>
+
+    <!-- Delete Label Dialog -->
+    <string name="delete_label_dialog_message">Delete Label?</string>
+
+    <!-- Dialog -->
+    <string name="dialog_accept">Accept</string>
+
+    <string name="dialog_cancel">Cancel</string>
 </resources>

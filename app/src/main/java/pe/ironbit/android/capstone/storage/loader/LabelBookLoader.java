@@ -1,10 +1,10 @@
 package pe.ironbit.android.capstone.storage.loader;
 
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 
 import pe.ironbit.android.capstone.model.LabelBook.LabelBookMapper;
 import pe.ironbit.android.capstone.storage.contract.LabelBookContract.LabelBookEntry;
@@ -36,6 +36,18 @@ public class LabelBookLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         return this;
     }
 
+    public LabelBookLoader LoadBookList(int value) {
+        bookId = value;
+        labelId = LabelBookEntry.NULL_INDEX;
+        return this;
+    }
+
+    public LabelBookLoader LoadLabelList(int value) {
+        labelId = value;
+        bookId = LabelBookEntry.NULL_INDEX;
+        return this;
+    }
+
     public LabelBookLoader LoadItem(int labelId, int bookId) {
         this.labelId = labelId;
         this.bookId = bookId;
@@ -43,18 +55,26 @@ public class LabelBookLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (labelId == LabelBookEntry.NULL_INDEX) {
-            return LabelBookMapper.query(context);
+            if (bookId == LabelBookEntry.NULL_INDEX) {
+                return LabelBookMapper.query(context);
+            } else {
+                return LabelBookMapper.queryByBookIdentifier(context, bookId);
+            }
         } else {
-            return LabelBookMapper.query(context, labelId, bookId);
+            if (bookId != LabelBookEntry.NULL_INDEX) {
+                return LabelBookMapper.query(context, labelId, bookId);
+            } else {
+                return LabelBookMapper.queryByLabelIdentifier(context, labelId);
+            }
         }
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (cursor != null && listener != null) {
-            listener.onEvent(LabelBookMapper.generateListData(cursor));
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data != null && listener != null) {
+            listener.onEvent(LabelBookMapper.generateListData(data));
         }
     }
 

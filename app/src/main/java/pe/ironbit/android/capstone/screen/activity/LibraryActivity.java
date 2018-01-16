@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -22,15 +24,21 @@ import pe.ironbit.android.capstone.model.BookPrime.BookPrimeMapper;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
 import pe.ironbit.android.capstone.model.Library.LibraryData;
 import pe.ironbit.android.capstone.screen.fragment.BookMenuFragment;
+import pe.ironbit.android.capstone.screen.fragment.MainMenuFragment;
+import pe.ironbit.android.capstone.screen.fragment.ManagerLabelFragment;
 import pe.ironbit.android.capstone.storage.contract.BookPrimeContract;
 import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
 import pe.ironbit.android.capstone.storage.loader.BookPrimeLoader;
 import pe.ironbit.android.capstone.util.InternetStatus;
 
 public class LibraryActivity extends AppCompatActivity {
+    private static final String TAG = LibraryActivity.class.getSimpleName();
+
     private int totalBooksLoaded;
 
     private int totalBooksLibrary;
+
+    private Fragment currentFragment;
 
     private StorageService storageService;
 
@@ -39,6 +47,9 @@ public class LibraryActivity extends AppCompatActivity {
     @BindView(R.id.activity_library_prime_screen)
     View primeView;
 
+    @BindView(R.id.activity_library_drawerlayout)
+    DrawerLayout drawerLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +57,40 @@ public class LibraryActivity extends AppCompatActivity {
 
         configureVariables();
 
+        loadMainMenu();
         loadBookDataForBookMenu();
+    }
+
+    public void onClickManagerOption(View view) {
+        closeNavigationDrawer();
+        changeScreenToManagerLabel();
+    }
+
+    private void closeNavigationDrawer() {
+        drawerLayout.closeDrawers();
+    }
+
+    private void changeScreenToManagerLabel() {
+        if (TextUtils.equals(currentFragment.getTag(), ManagerLabelFragment.class.getSimpleName())) {
+            return;
+        }
+
+        FragmentManager manager = getSupportFragmentManager();
+
+        Fragment fragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
+        if (fragment == null) {
+            fragment = new ManagerLabelFragment();
+            manager.beginTransaction()
+                   .add(R.id.activity_library_main_screen, fragment, ManagerLabelFragment.class.getSimpleName())
+                   .commit();
+        }
+
+        manager.beginTransaction()
+               .hide(currentFragment)
+               .show(fragment)
+               .commit();
+
+        currentFragment = fragment;
     }
 
     private void configureVariables() {
@@ -55,6 +99,17 @@ public class LibraryActivity extends AppCompatActivity {
         bookPrimeDataList = new ArrayList<>();
         storageService = new StorageService(getApplicationContext());
         ButterKnife.bind(this);
+    }
+
+    private void loadMainMenu() {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment = manager.findFragmentByTag(MainMenuFragment.class.getSimpleName());
+        if (fragment == null) {
+            fragment = MainMenuFragment.newInstance();
+            manager.beginTransaction()
+                   .add(R.id.layout_library_main_menu, fragment, MainMenuFragment.class.getSimpleName())
+                   .commit();
+        }
     }
 
     private void loadBookDataForBookMenu() {
@@ -88,13 +143,15 @@ public class LibraryActivity extends AppCompatActivity {
     private void loadBookMenuScreen() {
         FragmentManager manager = getSupportFragmentManager();
 
-        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
-        if (bookMenuFragment == null) {
-            bookMenuFragment = BookMenuFragment.newInstance(createBookParcelableList(bookPrimeDataList));
+        Fragment fragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+        if (fragment == null) {
+            fragment = BookMenuFragment.newInstance(createBookParcelableList(bookPrimeDataList));
             manager.beginTransaction()
-                   .add(R.id.layout_library_book_menu, bookMenuFragment, BookMenuFragment.class.getSimpleName())
+                   .add(R.id.activity_library_main_screen, fragment, BookMenuFragment.class.getSimpleName())
                    .commit();
         }
+
+        currentFragment = fragment;
     }
 
     private void loadLibraryDataFromFirebase() {
@@ -133,20 +190,6 @@ public class LibraryActivity extends AppCompatActivity {
             loadBookMenuScreen();
         }
     }
-
-//    private void initializeScreen() {
-//        FragmentManager manager = getSupportFragmentManager();
-//
-//        Fragment mainMenuFragment = MainMenuFragment.newInstance();
-//        manager.beginTransaction()
-//                .add(R.id.layout_library_main_menu, mainMenuFragment, MainMenuFragment.class.getSimpleName())
-//                .commit();
-//
-//        Fragment bookMenuFragment = BookMenuFragment.newInstance();
-//        manager.beginTransaction()
-//                .add(R.id.layout_library_book_menu, bookMenuFragment, BookMenuFragment.class.getSimpleName())
-//                .commit();
-//    }
 
     private ArrayList<BookPrimeParcelable> createBookParcelableList(List<BookPrimeData> inputList) {
         ArrayList<BookPrimeParcelable> outputList = new ArrayList<>();
