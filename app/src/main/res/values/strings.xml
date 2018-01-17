@@ -45,8 +45,19 @@
 
     <string name="manager_label_create_cancelled_message">Create label cancelled</string>
 
-    <!-- Delete Label Dialog -->
-    <string name="delete_label_dialog_message">Delete Label?</string>
+    <string name="manager_label_edit_label_title">Edit Label</string>
+
+    <string name="manager_label_edit_label_accept_message">Label renamed</string>
+
+    <string name="manager_label_edit_label_problem_message">Label cannot be renamed</string>
+
+    <string name="manager_label_edit_cancelled_message">Rename label cancelled</string>
+
+    <string name="manager_label_erase_label_message">Delete Label?</string>
+
+    <string name="manager_label_erase_accept_message">Label erased</string>
+
+    <string name="manager_label_erase_cancel_message">Erase label cancelled</string>
 
     <!-- Dialog -->
     <string name="dialog_accept">Accept</string>

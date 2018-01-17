@@ -27,6 +27,7 @@ import pe.ironbit.android.capstone.model.LabelPrime.LabelPrimeMapper;
 import pe.ironbit.android.capstone.screen.activity.LibraryActivity;
 import pe.ironbit.android.capstone.screen.dialog.CreateLabelDialog;
 import pe.ironbit.android.capstone.screen.dialog.DeleteLabelDialog;
+import pe.ironbit.android.capstone.screen.dialog.EditLabelDialog;
 import pe.ironbit.android.capstone.storage.contract.LabelPrimeContract;
 import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
 import pe.ironbit.android.capstone.storage.loader.LabelPrimeLoader;
@@ -78,7 +79,47 @@ public class ManagerLabelFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private void onEditLabelAction(Integer index) {
+    private void performCreateLabelDialog() {
+        int newLabelId = 1;
+        for (LabelPrimeData data : adapter.getList()) {
+            if (newLabelId <= data.getLabelId()) {
+                newLabelId = data.getLabelId() + 1;
+            }
+        }
+
+        DialogFragment dialog = CreateLabelDialog.newInstance(newLabelId);
+        dialog.show(getFragmentManager(), CreateLabelDialog.class.getSimpleName());
+    }
+
+    private void onEditLabelAction(final Integer index) {
+        LabelPrimeData data = adapter.getItem(index);
+        DialogFragment dialog = EditLabelDialog.newInstance(index, data.getLabelName());
+        dialog.show(getFragmentManager(), EditLabelDialog.class.getSimpleName());
+    }
+
+    public void doOnEditLabelCancelAction() {
+        View view = ((LibraryActivity)getActivity()).getPrimeView();
+        Snackbar.make(view, getString(R.string.manager_label_edit_cancelled_message), Snackbar.LENGTH_LONG).show();
+    }
+
+    public void doOnEditLabelAcceptAction(final int index, final String labelName) {
+        boolean valid = false;
+        LabelPrimeData data = adapter.getItem(index);
+        if ((labelName != null) && (!labelName.isEmpty())) {
+            if (!TextUtils.equals(labelName, data.getLabelName())) {
+                valid = true;
+            }
+        }
+
+        View view = ((LibraryActivity)getActivity()).getPrimeView();
+        if (valid) {
+            LabelPrimeData newData = LabelPrimeFactory.create(data.getLabelId(), labelName);
+            adapter.update(index, newData);
+            LabelPrimeMapper.update(getActivity().getContentResolver(), newData);
+            Snackbar.make(view, getString(R.string.manager_label_edit_label_accept_message), Snackbar.LENGTH_LONG).show();
+        } else {
+            Snackbar.make(view, getString(R.string.manager_label_edit_label_problem_message), Snackbar.LENGTH_LONG).show();
+        }
     }
 
     private void onEraseLabelAction(final Integer index) {
@@ -86,10 +127,23 @@ public class ManagerLabelFragment extends Fragment {
         dialog.show(getFragmentManager(), DeleteLabelDialog.class.getSimpleName());
     }
 
+    public void doOnEraseLabelCancelAction() {
+        View view = ((LibraryActivity)getActivity()).getPrimeView();
+        Snackbar.make(view, getString(R.string.manager_label_erase_cancel_message), Snackbar.LENGTH_LONG).show();
+    }
+
     public void doOnEraseLabelAcceptAction(final Integer index) {
         LabelPrimeData data = adapter.eraseItem(index);
         LabelPrimeMapper.delete(getActivity().getContentResolver(), data.getLabelId());
         LabelBookMapper.deleteByLabelIdentifier(getActivity().getContentResolver(), data.getLabelId());
+
+        View view = ((LibraryActivity)getActivity()).getPrimeView();
+        Snackbar.make(view, getString(R.string.manager_label_erase_accept_message), Snackbar.LENGTH_LONG).show();
+    }
+
+    public void doOnCreateLabelCancelAction() {
+        View view = ((LibraryActivity)getActivity()).getPrimeView();
+        Snackbar.make(view, getString(R.string.manager_label_create_cancelled_message), Snackbar.LENGTH_LONG).show();
     }
 
     public void doOnCreateLabelAcceptAction(final Integer labelId, final String labelName) {
@@ -112,23 +166,6 @@ public class ManagerLabelFragment extends Fragment {
         } else {
             Snackbar.make(view, getString(R.string.manager_label_create_label_problem_message), Snackbar.LENGTH_LONG).show();
         }
-    }
-
-    public void doOnCreateLabelCancelAction() {
-        View view = ((LibraryActivity)getActivity()).getPrimeView();
-        Snackbar.make(view, getString(R.string.manager_label_create_cancelled_message), Snackbar.LENGTH_LONG).show();
-    }
-
-    private void performCreateLabelDialog() {
-        int newLabelId = 1;
-        for (LabelPrimeData data : adapter.getList()) {
-            if (newLabelId <= data.getLabelId()) {
-                newLabelId = data.getLabelId() + 1;
-            }
-        }
-
-        DialogFragment dialog = CreateLabelDialog.newInstance(newLabelId);
-        dialog.show(getFragmentManager(), CreateLabelDialog.class.getSimpleName());
     }
 
     private void update(List list) {

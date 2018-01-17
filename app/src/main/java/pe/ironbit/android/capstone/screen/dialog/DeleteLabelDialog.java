@@ -31,11 +31,13 @@ public class DeleteLabelDialog extends DialogFragment {
         final Integer index = getArguments().getInt(DELETE_LABEL_DIALOG_ITEM);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(getString(R.string.delete_label_dialog_message));
+        builder.setMessage(getString(R.string.manager_label_erase_label_message));
 
         builder.setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                Fragment fragment = getActivity().getSupportFragmentManager().findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
+                ((ManagerLabelFragment)fragment).doOnEraseLabelCancelAction();
             }
         });
 

@@ -58,6 +58,11 @@ public class ManagerLabelAdapter extends RecyclerView.Adapter<ManagerLabelHolder
         return list;
     }
 
+    public void update(int index, LabelPrimeData data) {
+        list.set(index, data);
+        notifyDataSetChanged();
+    }
+
     public void update(List<LabelPrimeData> list) {
         if (list == null) {
             return;
