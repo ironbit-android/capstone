@@ -66,6 +66,23 @@ public class ManagerLabelFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        if (!isHidden()) {
+            ((LibraryActivity) getActivity()).configureActionBar(false);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!isHidden()) {
+            ((LibraryActivity) getActivity()).configureActionBar(true);
+            ((LibraryActivity) getActivity()).setTitle(getString(R.string.manager_label_title));
+        }
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.manager_label_menu, menu);
     }

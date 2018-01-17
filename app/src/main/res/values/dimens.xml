@@ -9,6 +9,8 @@
 
     <dimen name="general_elevation">4dp</dimen>
 
+    <dimen name="general_title_text_size">20sp</dimen>
+
     <!-- Book Menu -->
     <dimen name="book_menu_card_height">200dp</dimen>
 

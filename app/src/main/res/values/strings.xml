@@ -34,7 +34,9 @@
     <!-- Message System -->
     <string name="notify_internet_not_working">Internet Connection Problems</string>
 
-    <!-- Manager Label -->
+    <!-- Manager Label Fragment -->
+    <string name="manager_label_title">Manager Label</string>
+
     <string name="manager_label_menu_add_title">Add Label</string>
 
     <string name="manager_label_create_label_title">Create Label</string>

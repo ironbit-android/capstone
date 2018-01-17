@@ -7,8 +7,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +39,13 @@ public class LibraryActivity extends AppCompatActivity {
 
     private int totalBooksLibrary;
 
-    private Fragment currentFragment;
-
     private StorageService storageService;
 
     private List<BookPrimeData> bookPrimeDataList;
+
+    private static final String TITLE_KEY = "TITLE_KEY";
+
+    private String title;
 
     @BindView(R.id.activity_library_prime_screen)
     View primeView;
@@ -54,16 +56,61 @@ public class LibraryActivity extends AppCompatActivity {
     @BindView(R.id.activity_library_toolbar)
     Toolbar toolbar;
 
+    @BindView(R.id.activity_library_title)
+    TextView titleView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
+
+        loadInstanceState(savedInstanceState);
 
         configureVariables();
         configureActivity();
 
         loadMainMenu();
         loadBookDataForBookMenu();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(TITLE_KEY, title);
+        super.onSaveInstanceState(outState);
+    }
+
+    private void loadInstanceState(Bundle bundle) {
+        if (bundle != null) {
+            title = bundle.getString(TITLE_KEY);
+        } else {
+            title = getString(R.string.local);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        FragmentManager manager = getSupportFragmentManager();
+
+        Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
+        if ((managerLabelFragment != null) && (!managerLabelFragment.isHidden())) {
+            configureActionBar(false);
+
+            Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+            manager.beginTransaction()
+                   .hide(managerLabelFragment)
+                   .show(bookMenuFragment)
+                   .commitNow();
+
+            setTitle(getString(R.string.local));
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return super.onSupportNavigateUp();
     }
 
     public void onClickManagerOption(View view) {
@@ -80,26 +127,27 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     private void changeScreenToManagerLabel() {
-        if (TextUtils.equals(currentFragment.getTag(), ManagerLabelFragment.class.getSimpleName())) {
+        FragmentManager manager = getSupportFragmentManager();
+
+        Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
+        if (managerLabelFragment == null) {
+            managerLabelFragment = new ManagerLabelFragment();
+            manager.beginTransaction()
+                   .add(R.id.activity_library_main_screen, managerLabelFragment, ManagerLabelFragment.class.getSimpleName())
+                   .commit();
+        } else if (!managerLabelFragment.isHidden()) {
             return;
         }
 
-        FragmentManager manager = getSupportFragmentManager();
+        configureActionBar(true);
+        setTitle(getString(R.string.manager_label_title));
 
-        Fragment fragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
-        if (fragment == null) {
-            fragment = new ManagerLabelFragment();
-            manager.beginTransaction()
-                   .add(R.id.activity_library_main_screen, fragment, ManagerLabelFragment.class.getSimpleName())
-                   .commit();
-        }
+        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
 
         manager.beginTransaction()
-               .hide(currentFragment)
-               .show(fragment)
+               .hide(bookMenuFragment)
+               .show(managerLabelFragment)
                .commit();
-
-        currentFragment = fragment;
     }
 
     private void configureVariables() {
@@ -107,11 +155,23 @@ public class LibraryActivity extends AppCompatActivity {
         totalBooksLibrary = 0;
         bookPrimeDataList = new ArrayList<>();
         storageService = new StorageService(getApplicationContext());
+        title = getString(R.string.local);
         ButterKnife.bind(this);
     }
 
     private void configureActivity() {
+        setTitle(title);
         setSupportActionBar(toolbar);
+    }
+
+    public void configureActionBar(boolean value) {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(value);
+        getSupportActionBar().setDisplayShowHomeEnabled(value);
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+        titleView.setText(title);
     }
 
     private void loadMainMenu() {
@@ -163,8 +223,6 @@ public class LibraryActivity extends AppCompatActivity {
                    .add(R.id.activity_library_main_screen, fragment, BookMenuFragment.class.getSimpleName())
                    .commit();
         }
-
-        currentFragment = fragment;
     }
 
     private void loadLibraryDataFromFirebase() {
