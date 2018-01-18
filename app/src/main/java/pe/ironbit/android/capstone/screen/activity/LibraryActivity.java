@@ -1,6 +1,7 @@
 package pe.ironbit.android.capstone.screen.activity;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -35,6 +36,7 @@ import pe.ironbit.android.capstone.storage.contract.LabelBookContract;
 import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
 import pe.ironbit.android.capstone.storage.loader.BookPrimeLoader;
 import pe.ironbit.android.capstone.storage.loader.LabelBookLoader;
+import pe.ironbit.android.capstone.util.DeviceMetaData;
 import pe.ironbit.android.capstone.util.InternetStatus;
 
 public class LibraryActivity extends AppCompatActivity {
@@ -54,12 +56,13 @@ public class LibraryActivity extends AppCompatActivity {
 
     private List<BookPrimeData> bookPrimeDataList;
 
-    private String title;
+    private String currentTitle;
 
     @BindView(R.id.activity_library_prime_screen)
     View primeView;
 
-    @BindView(R.id.activity_library_drawerlayout)
+    @Nullable
+    @BindView(R.id.activity_library_normal_drawerlayout)
     DrawerLayout drawerLayout;
 
     @BindView(R.id.activity_library_toolbar)
@@ -87,7 +90,7 @@ public class LibraryActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(ACTIVITY_LIBRARY_TITLE, title);
+        outState.putString(ACTIVITY_LIBRARY_TITLE, currentTitle);
         outState.putParcelableArrayList(ACTIVITY_LIBRARY_BOOK_PRIME, (ArrayList)BookPrimeFactory.createBookPrimeParcelableList(bookPrimeDataList));
         outState.putIntArray(ACTIVITY_LIBRARY_SCROLL, new int[] {scrollView.getScrollX(), scrollView.getScrollY()});
         super.onSaveInstanceState(outState);
@@ -99,7 +102,9 @@ public class LibraryActivity extends AppCompatActivity {
 
         Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
         if ((managerLabelFragment != null) && (!managerLabelFragment.isHidden())) {
-            configureActionBar(false);
+            if (isDevicePhone()) {
+                configureActionBar(false);
+            }
 
             Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
             manager.beginTransaction()
@@ -151,7 +156,9 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     private void closeNavigationDrawer() {
-        drawerLayout.closeDrawers();
+        if (isDevicePhone()) {
+            drawerLayout.closeDrawers();
+        }
     }
 
     private void changeScreenToManagerLabel() {
@@ -167,7 +174,9 @@ public class LibraryActivity extends AppCompatActivity {
             return;
         }
 
-        configureActionBar(true);
+        if (isDevicePhone()) {
+            configureActionBar(true);
+        }
         setTitle(getString(R.string.manager_label_title));
 
         Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
@@ -180,7 +189,7 @@ public class LibraryActivity extends AppCompatActivity {
 
     private void configureVariables(Bundle bundle) {
         if (bundle != null) {
-            title = bundle.getString(ACTIVITY_LIBRARY_TITLE);
+            currentTitle = bundle.getString(ACTIVITY_LIBRARY_TITLE);
             bookPrimeDataList = BookPrimeFactory.createBookPrimeDataList(bundle.<BookPrimeParcelable>getParcelableArrayList(ACTIVITY_LIBRARY_BOOK_PRIME));
             final int[] position = bundle.getIntArray(ACTIVITY_LIBRARY_SCROLL);
             scrollView.post(new Runnable() {
@@ -190,7 +199,7 @@ public class LibraryActivity extends AppCompatActivity {
                 }
             });
         } else {
-            title = getString(R.string.cloud);
+            currentTitle = getString(R.string.cloud);
             bookPrimeDataList = new ArrayList<>();
         }
 
@@ -200,7 +209,7 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     private void configureActivity() {
-        setTitle(title);
+        setTitle(currentTitle);
         setSupportActionBar(toolbar);
     }
 
@@ -210,7 +219,7 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.currentTitle = title;
         titleView.setText(title);
     }
 
@@ -330,5 +339,9 @@ public class LibraryActivity extends AppCompatActivity {
 
     private boolean isInternetWorking() {
         return InternetStatus.verifyInternetConnection(getApplicationContext());
+    }
+
+    private boolean isDevicePhone() {
+        return !DeviceMetaData.isDeviceTablet(getApplicationContext());
     }
 }

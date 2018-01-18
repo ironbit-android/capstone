@@ -49,6 +49,12 @@ public class MainMenuFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
+
     private void update(List list) {
         adapter.update(list);
     }

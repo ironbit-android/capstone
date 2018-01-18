@@ -31,6 +31,7 @@ import pe.ironbit.android.capstone.screen.dialog.EditLabelDialog;
 import pe.ironbit.android.capstone.storage.contract.LabelPrimeContract;
 import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
 import pe.ironbit.android.capstone.storage.loader.LabelPrimeLoader;
+import pe.ironbit.android.capstone.util.DeviceMetaData;
 import pe.ironbit.android.capstone.view.managerlabel.ManagerLabelAdapter;
 import pe.ironbit.android.capstone.view.managerlabel.ManagerLabelListener;
 
@@ -68,7 +69,7 @@ public class ManagerLabelFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (!isHidden()) {
+        if (!isHidden() && isDevicePhone()) {
             ((LibraryActivity) getActivity()).configureActionBar(false);
         }
     }
@@ -77,8 +78,10 @@ public class ManagerLabelFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (!isHidden()) {
-            ((LibraryActivity) getActivity()).configureActionBar(true);
             ((LibraryActivity) getActivity()).setTitle(getString(R.string.manager_label_title));
+            if (isDevicePhone()) {
+                ((LibraryActivity) getActivity()).configureActionBar(true);
+            }
         }
     }
 
@@ -215,5 +218,9 @@ public class ManagerLabelFragment extends Fragment {
             }
         });
         recyclerView.setAdapter(adapter);
+    }
+
+    private boolean isDevicePhone() {
+        return !DeviceMetaData.isDeviceTablet(getContext());
     }
 }
