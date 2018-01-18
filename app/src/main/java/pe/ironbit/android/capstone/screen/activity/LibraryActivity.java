@@ -5,6 +5,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -21,19 +22,29 @@ import pe.ironbit.android.capstone.firebase.model.LibraryDataDelegate;
 import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.generic.Action;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
+import pe.ironbit.android.capstone.model.BookPrime.BookPrimeFactory;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeMapper;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
+import pe.ironbit.android.capstone.model.LabelPrime.LabelPrimeData;
 import pe.ironbit.android.capstone.model.Library.LibraryData;
 import pe.ironbit.android.capstone.screen.fragment.BookMenuFragment;
 import pe.ironbit.android.capstone.screen.fragment.MainMenuFragment;
 import pe.ironbit.android.capstone.screen.fragment.ManagerLabelFragment;
 import pe.ironbit.android.capstone.storage.contract.BookPrimeContract;
+import pe.ironbit.android.capstone.storage.contract.LabelBookContract;
 import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
 import pe.ironbit.android.capstone.storage.loader.BookPrimeLoader;
+import pe.ironbit.android.capstone.storage.loader.LabelBookLoader;
 import pe.ironbit.android.capstone.util.InternetStatus;
 
 public class LibraryActivity extends AppCompatActivity {
     private static final String TAG = LibraryActivity.class.getSimpleName();
+
+    private static final String ACTIVITY_LIBRARY_TITLE = "ACTIVITY_LIBRARY_TITLE";
+
+    private static final String ACTIVITY_LIBRARY_SCROLL = "ACTIVITY_LIBRARY_SCROLL";
+
+    private static final String ACTIVITY_LIBRARY_BOOK_PRIME = "ACTIVITY_LIBRARY_BOOK_PRIME";
 
     private int totalBooksLoaded;
 
@@ -42,8 +53,6 @@ public class LibraryActivity extends AppCompatActivity {
     private StorageService storageService;
 
     private List<BookPrimeData> bookPrimeDataList;
-
-    private static final String TITLE_KEY = "TITLE_KEY";
 
     private String title;
 
@@ -59,14 +68,17 @@ public class LibraryActivity extends AppCompatActivity {
     @BindView(R.id.activity_library_title)
     TextView titleView;
 
+    @BindView(R.id.activity_library_main_scroll)
+    NestedScrollView scrollView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
 
-        loadInstanceState(savedInstanceState);
+        ButterKnife.bind(this);
 
-        configureVariables();
+        configureVariables(savedInstanceState);
         configureActivity();
 
         loadMainMenu();
@@ -75,16 +87,10 @@ public class LibraryActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(TITLE_KEY, title);
+        outState.putString(ACTIVITY_LIBRARY_TITLE, title);
+        outState.putParcelableArrayList(ACTIVITY_LIBRARY_BOOK_PRIME, (ArrayList)BookPrimeFactory.createBookPrimeParcelableList(bookPrimeDataList));
+        outState.putIntArray(ACTIVITY_LIBRARY_SCROLL, new int[] {scrollView.getScrollX(), scrollView.getScrollY()});
         super.onSaveInstanceState(outState);
-    }
-
-    private void loadInstanceState(Bundle bundle) {
-        if (bundle != null) {
-            title = bundle.getString(TITLE_KEY);
-        } else {
-            title = getString(R.string.local);
-        }
     }
 
     @Override
@@ -116,6 +122,28 @@ public class LibraryActivity extends AppCompatActivity {
     public void onClickManagerOption(View view) {
         closeNavigationDrawer();
         changeScreenToManagerLabel();
+    }
+
+    public void onClickMainMenuCloud(View view) {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+        if (fragment != null) {
+            ((BookMenuFragment)fragment).updateModeGlobal();
+        }
+
+        closeNavigationDrawer();
+        setTitle(getString(R.string.cloud));
+    }
+
+    public void onClickMainMenuLocal(View view) {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+        if (fragment != null) {
+            ((BookMenuFragment)fragment).updateModelLocal();
+        }
+
+        closeNavigationDrawer();
+        setTitle(getString(R.string.local));
     }
 
     public View getPrimeView() {
@@ -150,13 +178,25 @@ public class LibraryActivity extends AppCompatActivity {
                .commit();
     }
 
-    private void configureVariables() {
+    private void configureVariables(Bundle bundle) {
+        if (bundle != null) {
+            title = bundle.getString(ACTIVITY_LIBRARY_TITLE);
+            bookPrimeDataList = BookPrimeFactory.createBookPrimeDataList(bundle.<BookPrimeParcelable>getParcelableArrayList(ACTIVITY_LIBRARY_BOOK_PRIME));
+            final int[] position = bundle.getIntArray(ACTIVITY_LIBRARY_SCROLL);
+            scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    scrollView.scrollTo(position[0], position[1]);
+                }
+            });
+        } else {
+            title = getString(R.string.cloud);
+            bookPrimeDataList = new ArrayList<>();
+        }
+
         totalBooksLoaded = 0;
         totalBooksLibrary = 0;
-        bookPrimeDataList = new ArrayList<>();
         storageService = new StorageService(getApplicationContext());
-        title = getString(R.string.local);
-        ButterKnife.bind(this);
     }
 
     private void configureActivity() {
@@ -172,6 +212,27 @@ public class LibraryActivity extends AppCompatActivity {
     public void setTitle(String title) {
         this.title = title;
         titleView.setText(title);
+    }
+
+    public void updateBookMenuScreen(LabelPrimeData labelPrime) {
+        LabelBookLoader loader = new LabelBookLoader(getApplicationContext());
+        loader.LoadLabelList(labelPrime.getLabelId());
+        loader.setListener(new OnStorageListener() {
+            @Override
+            public void onEvent(List list) {
+                getSupportLoaderManager().destroyLoader(LabelBookContract.LOADER_IDENTIFIER);
+
+                FragmentManager manager = getSupportFragmentManager();
+                Fragment fragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+                if (fragment != null) {
+                    ((BookMenuFragment)fragment).updateModelLabel(list);
+                }
+            }
+        });
+
+        closeNavigationDrawer();
+        setTitle(labelPrime.getLabelName());
+        getSupportLoaderManager().initLoader(LabelBookContract.LOADER_IDENTIFIER, null, loader);
     }
 
     private void loadMainMenu() {
@@ -218,7 +279,7 @@ public class LibraryActivity extends AppCompatActivity {
 
         Fragment fragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
         if (fragment == null) {
-            fragment = BookMenuFragment.newInstance(createBookParcelableList(bookPrimeDataList));
+            fragment = BookMenuFragment.newInstance(bookPrimeDataList);
             manager.beginTransaction()
                    .add(R.id.activity_library_main_screen, fragment, BookMenuFragment.class.getSimpleName())
                    .commit();
@@ -260,17 +321,6 @@ public class LibraryActivity extends AppCompatActivity {
         if (totalBooksLibrary == ++totalBooksLoaded) {
             loadBookMenuScreen();
         }
-    }
-
-    private ArrayList<BookPrimeParcelable> createBookParcelableList(List<BookPrimeData> inputList) {
-        ArrayList<BookPrimeParcelable> outputList = new ArrayList<>();
-
-        for (BookPrimeData data : inputList) {
-            BookPrimeParcelable parcel = new BookPrimeParcelable(data);
-            outputList.add(parcel);
-        }
-
-        return outputList;
     }
 
     private void showMessageInternetProblem() {

@@ -1,7 +1,6 @@
 package pe.ironbit.android.capstone.screen.fragment;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,14 +20,17 @@ import pe.ironbit.android.capstone.R;
 import pe.ironbit.android.capstone.event.base.BaseListener;
 import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
+import pe.ironbit.android.capstone.model.BookPrime.BookPrimeFactory;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
+import pe.ironbit.android.capstone.model.BookPrime.BookPrimeStatus;
+import pe.ironbit.android.capstone.model.LabelBook.LabelBookData;
 import pe.ironbit.android.capstone.util.DeviceMetaData;
 import pe.ironbit.android.capstone.view.bookmenu.BookMenuAdapter;
 
 public class BookMenuFragment extends Fragment {
-    public static final String BOOK_MENU_LIST_KEY = "BOOK_MENU_LIST_KEY";
+    private static final String CURRENT_BOOK_PRIME_LIST = "CURRENT_BOOK_PRIME_LIST";
 
-    public static final String RECYCLER_VIEW_PARCELABLE_KEY = "RECYCLER_VIEW_PARCELABLE_KEY";
+    private static final String COMPLETE_BOOK_PRIME_LIST = "COMPLETE_BOOK_PRIME_LIST";
 
     private static final int PHONE_PORTRAIT_MATRIX_SIZE = 2;
 
@@ -38,21 +40,23 @@ public class BookMenuFragment extends Fragment {
 
     private static final int TABLET_LANDSCAPE_MATRIX_SIZE = 4;
 
-    private List<BookPrimeParcelable> books;
+    private Unbinder unbinder;
+
+    private List<BookPrimeData> currentBookPrimeList;
+
+    private List<BookPrimeData> completeBookPrimeList;
 
     private BookMenuAdapter adapter;
-
-    private Unbinder unbinder;
 
     @BindView(R.id.fragment_book_menu_recyclerview)
     RecyclerView recyclerView;
 
-    public static BookMenuFragment newInstance(ArrayList<BookPrimeParcelable> list) {
-        Bundle argument = new Bundle();
-        argument.putParcelableArrayList(BOOK_MENU_LIST_KEY, list);
+    public static BookMenuFragment newInstance(List<BookPrimeData> completeBookPrimeList) {
+        Bundle bundle = new Bundle();
+        storeData(bundle, completeBookPrimeList);
 
         BookMenuFragment fragment = new BookMenuFragment();
-        fragment.setArguments(argument);
+        fragment.setArguments(bundle);
 
         return fragment;
     }
@@ -66,18 +70,17 @@ public class BookMenuFragment extends Fragment {
 
         Bundle bundle = getArguments();
         if (bundle != null) {
-            books = bundle.getParcelableArrayList(BOOK_MENU_LIST_KEY);
+            loadData(bundle);
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book_menu, container, false);
 
         unbinder = ButterKnife.bind(this, view);
 
-        loadBookDataIntoFragmentScreen(view);
+        loadBookDataIntoScreen(view);
 
         return view;
     }
@@ -90,24 +93,51 @@ public class BookMenuFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
+    public void onSaveInstanceState(@NonNull Bundle bundle) {
+        super.onSaveInstanceState(bundle);
 
-        Parcelable parcelable = recyclerView.getLayoutManager().onSaveInstanceState();
-        outState.putParcelable(RECYCLER_VIEW_PARCELABLE_KEY, parcelable);
+        storeData(bundle, currentBookPrimeList, completeBookPrimeList);
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onActivityCreated(@Nullable Bundle bundle) {
+        super.onActivityCreated(bundle);
 
-        if (savedInstanceState != null) {
-            Parcelable parcelable = savedInstanceState.getParcelable(RECYCLER_VIEW_PARCELABLE_KEY);
-            recyclerView.getLayoutManager().onRestoreInstanceState(parcelable);
+        if (bundle != null) {
+            loadData(bundle);
         }
+
+        update();
     }
 
-    private void loadBookDataIntoFragmentScreen(View view) {
+    public void updateModeGlobal() {
+        currentBookPrimeList = completeBookPrimeList;
+        update();
+    }
+
+    public void updateModelLocal() {
+        currentBookPrimeList = new ArrayList<>();
+        for (BookPrimeData book : completeBookPrimeList) {
+            if (book.getStatus() == BookPrimeStatus.Local) {
+                currentBookPrimeList.add(book);
+            }
+        }
+        update();
+    }
+
+    public void updateModelLabel(List<LabelBookData> labelBookList) {
+        currentBookPrimeList = new ArrayList<>();
+        for (LabelBookData labelBook : labelBookList) {
+            for (BookPrimeData bookPrime : completeBookPrimeList) {
+                if (bookPrime.getBookId() == labelBook.getBookId()) {
+                    currentBookPrimeList.add(bookPrime);
+                }
+            }
+        }
+        update();
+    }
+
+    private void loadBookDataIntoScreen(View view) {
         int size = 0;
         if (isDevicePhone()) {
             if (isOrientationPortrait()) {
@@ -123,30 +153,40 @@ public class BookMenuFragment extends Fragment {
             }
         }
 
-        RecyclerView.LayoutManager manager = new GridLayoutManager(getContext(), size, GridLayoutManager.VERTICAL, false);
+        RecyclerView.LayoutManager manager = new GridLayoutManager(view.getContext(), size, GridLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(manager);
 
-        StorageService service = new StorageService(getContext());
+        StorageService service = new StorageService(view.getContext());
         BaseListener listener = new BaseListener() {
             @Override
-            public void update(Object o) {
+            public void update(Object object) {
             }
         };
 
         adapter = new BookMenuAdapter(listener, service);
         recyclerView.setAdapter(adapter);
-
-        adapter.setList(createBookPrimeDataList(books));
     }
 
-    private List<BookPrimeData> createBookPrimeDataList(List<BookPrimeParcelable> inputList) {
-        List<BookPrimeData> outputList = new ArrayList<>();
+    private void update() {
+        adapter.setList(currentBookPrimeList);
+    }
 
-        for (BookPrimeParcelable parcelable : inputList) {
-            outputList.add(parcelable.getBookPrime());
+    private static void storeData(Bundle bundle, List<BookPrimeData> completeBookPrimeList) {
+        bundle.putParcelableArrayList(COMPLETE_BOOK_PRIME_LIST, (ArrayList)BookPrimeFactory.createBookPrimeParcelableList(completeBookPrimeList));
+    }
+
+    private static void storeData(Bundle bundle, List<BookPrimeData> currentBookPrimeList, List<BookPrimeData> completeBookPrimeList) {
+        bundle.putParcelableArrayList(COMPLETE_BOOK_PRIME_LIST, (ArrayList)BookPrimeFactory.createBookPrimeParcelableList(completeBookPrimeList));
+        bundle.putParcelableArrayList(CURRENT_BOOK_PRIME_LIST, (ArrayList)BookPrimeFactory.createBookPrimeParcelableList(currentBookPrimeList));
+    }
+
+    private void loadData(Bundle bundle) {
+        currentBookPrimeList = BookPrimeFactory.createBookPrimeDataList(bundle.<BookPrimeParcelable>getParcelableArrayList(CURRENT_BOOK_PRIME_LIST));
+        completeBookPrimeList = BookPrimeFactory.createBookPrimeDataList(bundle.<BookPrimeParcelable>getParcelableArrayList(COMPLETE_BOOK_PRIME_LIST));
+
+        if (currentBookPrimeList == null) {
+            currentBookPrimeList = completeBookPrimeList;
         }
-
-        return outputList;
     }
 
     private boolean isDevicePhone() {

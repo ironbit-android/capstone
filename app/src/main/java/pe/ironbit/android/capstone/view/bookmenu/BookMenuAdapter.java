@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import pe.ironbit.android.capstone.R;
@@ -23,6 +24,7 @@ public class BookMenuAdapter extends RecyclerView.Adapter<BookMenuHolder> {
     public BookMenuAdapter(BaseListener listener, StorageService service) {
         this.listener = listener;
         this.service = service;
+        list = new ArrayList<>();
     }
 
     @Override

@@ -17,8 +17,6 @@ import pe.ironbit.android.capstone.model.BookPrime.BookPrimeStatus;
 public class BookMenuHolder extends RecyclerView.ViewHolder {
     private Integer position;
 
-    private BaseListener listener;
-
     @BindView(R.id.recyclerview_book_menu_book_image)
     ImageView bookImage;
 
