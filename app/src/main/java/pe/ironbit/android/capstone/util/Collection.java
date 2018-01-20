@@ -27,13 +27,14 @@ public class Collection {
         return output;
     }
 
-    public static <Type> void assign(List<Type> list, Type value) {
+    public static <Type> List<Type> assign(List<Type> list, Type value) {
         for (int index = 0; index < list.size(); ++index) {
             list.set(index, value);
         }
+        return list;
     }
 
-    public static <Type> void assign(List<Type> list, int size, Type value) {
+    public static <Type> List<Type> assign(List<Type> list, int size, Type value) {
         if ((list != null) && (list.size() == size)) {
             for (int index = 0; index < size; ++index) {
                 list.set(index, value);
@@ -44,6 +45,7 @@ public class Collection {
                 list.add(value);
             }
         }
+        return list;
     }
 
     public static <Type> List<Type> initialize(int size, Type value) {

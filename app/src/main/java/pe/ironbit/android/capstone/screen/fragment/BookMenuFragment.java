@@ -322,12 +322,12 @@ public class BookMenuFragment extends Fragment {
         }
     }
 
-    private void updateView() {
+    public void updateView() {
         adapter.update(currentBookPrimeList, alphaList);
     }
 
     private void resetAlphaList() {
-        Collection.assign(alphaList, currentBookPrimeList.size(), ALPHA_DEFAULT);
+        alphaList = Collection.assign(alphaList, currentBookPrimeList.size(), ALPHA_DEFAULT);
     }
 
     private void updateActionBar(boolean value) {

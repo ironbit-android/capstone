@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -52,6 +53,8 @@ public class LibraryActivity extends AppCompatActivity {
 
     private static final String ACTIVITY_LIBRARY_SELECTION_BAR = "ACTIVITY_LIBRARY_SELECTION_BAR";
 
+    private static final String IS_BACK_ICON_ACTIVE = "IS_BACK_ICON_ACTIVE";
+
     private int totalBooksLoaded;
 
     private int totalBooksLibrary;
@@ -65,6 +68,8 @@ public class LibraryActivity extends AppCompatActivity {
     private String previousTitle;
 
     private String selectionBarValue;
+
+    private boolean isBackIconActive;
 
     @BindView(R.id.activity_library_prime_screen)
     View primeView;
@@ -101,6 +106,7 @@ public class LibraryActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(IS_BACK_ICON_ACTIVE, isBackIconActive);
         outState.putString(ACTIVITY_LIBRARY_CURRENT_TITLE, currentTitle);
         outState.putString(ACTIVITY_LIBRARY_PREVIOUS_TITLE, previousTitle);
         outState.putString(ACTIVITY_LIBRARY_SELECTION_BAR, selectionBarValue);
@@ -115,10 +121,6 @@ public class LibraryActivity extends AppCompatActivity {
 
         Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
         if ((managerLabelFragment != null) && (!managerLabelFragment.isHidden())) {
-            if (isDevicePhone()) {
-                configureActionBar(false);
-            }
-
             Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
             manager.beginTransaction()
                    .hide(managerLabelFragment)
@@ -126,6 +128,7 @@ public class LibraryActivity extends AppCompatActivity {
                    .commitNow();
 
             setTitle(previousTitle);
+            configureActionBar(false);
             return;
         }
 
@@ -135,9 +138,7 @@ public class LibraryActivity extends AppCompatActivity {
             if (state) {
                 setPreviousTitle();
                 resetSelectionBar();
-                if (isDevicePhone()) {
-                    configureActionBar(false);
-                }
+                configureActionBar(false);
                 return;
             }
         }
@@ -152,43 +153,6 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     public void onClickManagerOption(View view) {
-        closeNavigationDrawer();
-        changeScreenToManagerLabel();
-    }
-
-    public void onClickMainMenuCloud(View view) {
-        FragmentManager manager = getSupportFragmentManager();
-        Fragment fragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
-        if (fragment != null) {
-            ((BookMenuFragment)fragment).updateModeGlobal();
-        }
-
-        closeNavigationDrawer();
-        setTitle(getString(R.string.cloud));
-    }
-
-    public void onClickMainMenuLocal(View view) {
-        FragmentManager manager = getSupportFragmentManager();
-        Fragment fragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
-        if (fragment != null) {
-            ((BookMenuFragment)fragment).updateModelLocal();
-        }
-
-        closeNavigationDrawer();
-        setTitle(getString(R.string.local));
-    }
-
-    public View getPrimeView() {
-        return primeView;
-    }
-
-    private void closeNavigationDrawer() {
-        if (isDevicePhone()) {
-            drawerLayout.closeDrawers();
-        }
-    }
-
-    private void changeScreenToManagerLabel() {
         FragmentManager manager = getSupportFragmentManager();
 
         Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
@@ -197,87 +161,57 @@ public class LibraryActivity extends AppCompatActivity {
             manager.beginTransaction()
                    .add(R.id.activity_library_main_screen, managerLabelFragment, ManagerLabelFragment.class.getSimpleName())
                    .commit();
-        } else if (!managerLabelFragment.isHidden()) {
-            return;
         }
-
-        if (isDevicePhone()) {
-            configureActionBar(true);
-        }
-
-        setTitle(getString(R.string.manager_label_title));
 
         Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
-        ((BookMenuFragment)bookMenuFragment).doOnCloseSelectionMode();
-
         manager.beginTransaction()
-               .hide(bookMenuFragment)
-               .show(managerLabelFragment)
-               .commit();
+                .hide(bookMenuFragment)
+                .show(managerLabelFragment)
+                .commit();
+
+        ((BookMenuFragment)bookMenuFragment).doOnCloseSelectionMode();
+        ((BookMenuFragment)bookMenuFragment).updateView();
+        closeNavigationDrawer();
+        configureActionBar(true);
+        setTitle(getString(R.string.manager_label_title));
     }
 
-    private void configureVariables(Bundle bundle) {
-        if (bundle != null) {
-            currentTitle = bundle.getString(ACTIVITY_LIBRARY_CURRENT_TITLE);
-            previousTitle = bundle.getString(ACTIVITY_LIBRARY_PREVIOUS_TITLE);
-            selectionBarValue = bundle.getString(ACTIVITY_LIBRARY_SELECTION_BAR);
-            bookPrimeDataList = BookPrimeFactory.createBookPrimeDataList(bundle.<BookPrimeParcelable>getParcelableArrayList(ACTIVITY_LIBRARY_BOOK_PRIME));
-            final int[] position = bundle.getIntArray(ACTIVITY_LIBRARY_SCROLL);
-            scrollView.post(new Runnable() {
-                @Override
-                public void run() {
-                    scrollView.scrollTo(position[0], position[1]);
-                }
-            });
-        } else {
-            selectionBarValue = "";
-            currentTitle = getString(R.string.cloud);
-            previousTitle = currentTitle;
-            bookPrimeDataList = new ArrayList<>();
+    public void onClickMainMenuCloud(View view) {
+        FragmentManager manager = getSupportFragmentManager();
+
+        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+
+        Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
+        if ((managerLabelFragment != null) && !managerLabelFragment.isHidden()) {
+            manager.beginTransaction()
+                   .show(bookMenuFragment)
+                   .hide(managerLabelFragment)
+                   .commit();
         }
 
-        totalBooksLoaded = 0;
-        totalBooksLibrary = 0;
-        storageService = new StorageService(getApplicationContext());
+        ((BookMenuFragment)bookMenuFragment).updateModeGlobal();
+        closeNavigationDrawer();
+        configureActionBar(false);
+        setTitle(getString(R.string.cloud));
     }
 
-    private void configureActivity() {
-        setSupportActionBar(toolbar);
+    public void onClickMainMenuLocal(View view) {
+        FragmentManager manager = getSupportFragmentManager();
 
-        titleView.setText(currentTitle);
-        if (!selectionBarValue.isEmpty()) {
-            selectionBarView.setText(selectionBarValue);
-            selectionBarView.setVisibility(View.VISIBLE);
+        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+
+        Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
+        if ((managerLabelFragment != null) && !managerLabelFragment.isHidden()) {
+            manager.beginTransaction()
+                    .show(bookMenuFragment)
+                    .hide(managerLabelFragment)
+                    .commit();
         }
-    }
 
-    public void configureActionBar(boolean value) {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(value);
-        getSupportActionBar().setDisplayShowHomeEnabled(value);
-    }
-
-    public void setPreviousTitle() {
-        currentTitle = previousTitle;
-        titleView.setText(currentTitle);
-    }
-
-    public void setTitle(String title) {
-        previousTitle = currentTitle;
-        currentTitle = title;
-        titleView.setText(title);
-    }
-
-    public void resetSelectionBar() {
-        selectionBarValue = "";
-        selectionBarView.setVisibility(View.GONE);
-    }
-
-    public void setSelectionBar(int value) {
-        if (selectionBarValue.isEmpty()) {
-            selectionBarView.setVisibility(View.VISIBLE);
-        }
-        selectionBarValue = String.valueOf(value);
-        selectionBarView.setText(selectionBarValue);
+        ((BookMenuFragment)bookMenuFragment).updateModelLocal();
+        closeNavigationDrawer();
+        configureActionBar(false);
+        setTitle(getString(R.string.local));
     }
 
     public void updateBookMenuScreen(LabelPrimeData labelPrime) {
@@ -297,8 +231,92 @@ public class LibraryActivity extends AppCompatActivity {
         });
 
         closeNavigationDrawer();
+        configureActionBar(false);
         setTitle(labelPrime.getLabelName());
         getSupportLoaderManager().initLoader(LabelBookContract.LOADER_IDENTIFIER, null, loader);
+    }
+
+    public View getPrimeView() {
+        return primeView;
+    }
+
+    private void closeNavigationDrawer() {
+        if (isDevicePhone()) {
+            drawerLayout.closeDrawers();
+        }
+    }
+
+    private void configureVariables(Bundle bundle) {
+        if (bundle != null) {
+            isBackIconActive = bundle.getBoolean(IS_BACK_ICON_ACTIVE);
+            currentTitle = bundle.getString(ACTIVITY_LIBRARY_CURRENT_TITLE);
+            previousTitle = bundle.getString(ACTIVITY_LIBRARY_PREVIOUS_TITLE);
+            selectionBarValue = bundle.getString(ACTIVITY_LIBRARY_SELECTION_BAR);
+            bookPrimeDataList = BookPrimeFactory.createBookPrimeDataList(bundle.<BookPrimeParcelable>getParcelableArrayList(ACTIVITY_LIBRARY_BOOK_PRIME));
+            final int[] position = bundle.getIntArray(ACTIVITY_LIBRARY_SCROLL);
+            scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    scrollView.scrollTo(position[0], position[1]);
+                }
+            });
+        } else {
+            isBackIconActive = false;
+            selectionBarValue = "";
+            currentTitle = getString(R.string.cloud);
+            previousTitle = currentTitle;
+            bookPrimeDataList = new ArrayList<>();
+        }
+
+        totalBooksLoaded = 0;
+        totalBooksLibrary = 0;
+        storageService = new StorageService(getApplicationContext());
+    }
+
+    private void configureActivity() {
+        setSupportActionBar(toolbar);
+
+        titleView.setText(currentTitle);
+        configureActionBar(isBackIconActive);
+        if (!selectionBarValue.isEmpty()) {
+            selectionBarView.setText(selectionBarValue);
+            selectionBarView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void configureActionBar(boolean value) {
+        if (isDevicePhone()) {
+            isBackIconActive = value;
+            getSupportActionBar().setDisplayHomeAsUpEnabled(value);
+            getSupportActionBar().setDisplayShowHomeEnabled(value);
+        }
+    }
+
+    public void setPreviousTitle() {
+        currentTitle = previousTitle;
+        titleView.setText(currentTitle);
+    }
+
+    public void setTitle(String title) {
+        String selection = getString(R.string.menu_selection_book_title);
+        if (!TextUtils.equals(currentTitle, selection)) {
+            previousTitle = currentTitle;
+        }
+        currentTitle = title;
+        titleView.setText(title);
+    }
+
+    public void resetSelectionBar() {
+        selectionBarValue = "";
+        selectionBarView.setVisibility(View.GONE);
+    }
+
+    public void setSelectionBar(int value) {
+        if (selectionBarValue.isEmpty()) {
+            selectionBarView.setVisibility(View.VISIBLE);
+        }
+        selectionBarValue = String.valueOf(value);
+        selectionBarView.setText(selectionBarValue);
     }
 
     private void loadMainMenu() {

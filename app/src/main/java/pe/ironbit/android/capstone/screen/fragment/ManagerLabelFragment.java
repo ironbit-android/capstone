@@ -67,25 +67,6 @@ public class ManagerLabelFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        if (!isHidden() && isDevicePhone()) {
-            ((LibraryActivity) getActivity()).configureActionBar(false);
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (!isHidden()) {
-            ((LibraryActivity) getActivity()).setTitle(getString(R.string.manager_label_title));
-            if (isDevicePhone()) {
-                ((LibraryActivity) getActivity()).configureActionBar(true);
-            }
-        }
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.manager_label_menu, menu);
     }
