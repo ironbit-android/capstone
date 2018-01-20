@@ -61,6 +61,19 @@
 
     <string name="manager_label_erase_cancel_message">Erase label cancelled</string>
 
+    <!-- Selection Book Functionality -->
+    <string name="menu_selection_book_title">Select</string>
+
+    <string name="menu_selection_book_erase_book">Erase</string>
+
+    <string name="menu_selection_book_group_book">Group</string>
+
+    <string name="menu_selection_book_cancel_group">Cancel</string>
+
+    <string name="menu_selection_book_add_success">Book(s) added to label</string>
+
+    <string name="menu_selection_book_add_failure">Book(s) cannot added to label</string>
+
     <!-- Dialog -->
     <string name="dialog_accept">Accept</string>
 

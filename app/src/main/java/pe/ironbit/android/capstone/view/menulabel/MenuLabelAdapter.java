@@ -14,9 +14,9 @@ import pe.ironbit.android.capstone.event.base.BaseListener;
 import pe.ironbit.android.capstone.model.LabelPrime.LabelPrimeData;
 
 public class MenuLabelAdapter extends RecyclerView.Adapter<MenuLabelHolder> {
-    BaseListener listener;
+    private BaseListener listener;
 
-    List<LabelPrimeData> list;
+    private List<LabelPrimeData> list;
 
     public MenuLabelAdapter(BaseListener listener) {
         this.listener = listener;

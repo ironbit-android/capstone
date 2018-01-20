@@ -42,11 +42,15 @@ import pe.ironbit.android.capstone.util.InternetStatus;
 public class LibraryActivity extends AppCompatActivity {
     private static final String TAG = LibraryActivity.class.getSimpleName();
 
-    private static final String ACTIVITY_LIBRARY_TITLE = "ACTIVITY_LIBRARY_TITLE";
-
     private static final String ACTIVITY_LIBRARY_SCROLL = "ACTIVITY_LIBRARY_SCROLL";
 
     private static final String ACTIVITY_LIBRARY_BOOK_PRIME = "ACTIVITY_LIBRARY_BOOK_PRIME";
+
+    private static final String ACTIVITY_LIBRARY_CURRENT_TITLE = "ACTIVITY_LIBRARY_CURRENT_TITLE";
+
+    private static final String ACTIVITY_LIBRARY_PREVIOUS_TITLE = "ACTIVITY_LIBRARY_PREVIOUS_TITLE";
+
+    private static final String ACTIVITY_LIBRARY_SELECTION_BAR = "ACTIVITY_LIBRARY_SELECTION_BAR";
 
     private int totalBooksLoaded;
 
@@ -57,6 +61,10 @@ public class LibraryActivity extends AppCompatActivity {
     private List<BookPrimeData> bookPrimeDataList;
 
     private String currentTitle;
+
+    private String previousTitle;
+
+    private String selectionBarValue;
 
     @BindView(R.id.activity_library_prime_screen)
     View primeView;
@@ -74,6 +82,9 @@ public class LibraryActivity extends AppCompatActivity {
     @BindView(R.id.activity_library_main_scroll)
     NestedScrollView scrollView;
 
+    @BindView(R.id.activity_library_toolbar_selection)
+    TextView selectionBarView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +101,9 @@ public class LibraryActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(ACTIVITY_LIBRARY_TITLE, currentTitle);
+        outState.putString(ACTIVITY_LIBRARY_CURRENT_TITLE, currentTitle);
+        outState.putString(ACTIVITY_LIBRARY_PREVIOUS_TITLE, previousTitle);
+        outState.putString(ACTIVITY_LIBRARY_SELECTION_BAR, selectionBarValue);
         outState.putParcelableArrayList(ACTIVITY_LIBRARY_BOOK_PRIME, (ArrayList)BookPrimeFactory.createBookPrimeParcelableList(bookPrimeDataList));
         outState.putIntArray(ACTIVITY_LIBRARY_SCROLL, new int[] {scrollView.getScrollX(), scrollView.getScrollY()});
         super.onSaveInstanceState(outState);
@@ -112,9 +125,23 @@ public class LibraryActivity extends AppCompatActivity {
                    .show(bookMenuFragment)
                    .commitNow();
 
-            setTitle(getString(R.string.local));
+            setTitle(previousTitle);
             return;
         }
+
+        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+        if ((bookMenuFragment != null) && (!bookMenuFragment.isHidden())) {
+            boolean state = ((BookMenuFragment) bookMenuFragment).performEndSelection();
+            if (state) {
+                setPreviousTitle();
+                resetSelectionBar();
+                if (isDevicePhone()) {
+                    configureActionBar(false);
+                }
+                return;
+            }
+        }
+
         super.onBackPressed();
     }
 
@@ -177,9 +204,11 @@ public class LibraryActivity extends AppCompatActivity {
         if (isDevicePhone()) {
             configureActionBar(true);
         }
+
         setTitle(getString(R.string.manager_label_title));
 
         Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+        ((BookMenuFragment)bookMenuFragment).doOnCloseSelectionMode();
 
         manager.beginTransaction()
                .hide(bookMenuFragment)
@@ -189,7 +218,9 @@ public class LibraryActivity extends AppCompatActivity {
 
     private void configureVariables(Bundle bundle) {
         if (bundle != null) {
-            currentTitle = bundle.getString(ACTIVITY_LIBRARY_TITLE);
+            currentTitle = bundle.getString(ACTIVITY_LIBRARY_CURRENT_TITLE);
+            previousTitle = bundle.getString(ACTIVITY_LIBRARY_PREVIOUS_TITLE);
+            selectionBarValue = bundle.getString(ACTIVITY_LIBRARY_SELECTION_BAR);
             bookPrimeDataList = BookPrimeFactory.createBookPrimeDataList(bundle.<BookPrimeParcelable>getParcelableArrayList(ACTIVITY_LIBRARY_BOOK_PRIME));
             final int[] position = bundle.getIntArray(ACTIVITY_LIBRARY_SCROLL);
             scrollView.post(new Runnable() {
@@ -199,7 +230,9 @@ public class LibraryActivity extends AppCompatActivity {
                 }
             });
         } else {
+            selectionBarValue = "";
             currentTitle = getString(R.string.cloud);
+            previousTitle = currentTitle;
             bookPrimeDataList = new ArrayList<>();
         }
 
@@ -209,8 +242,13 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     private void configureActivity() {
-        setTitle(currentTitle);
         setSupportActionBar(toolbar);
+
+        titleView.setText(currentTitle);
+        if (!selectionBarValue.isEmpty()) {
+            selectionBarView.setText(selectionBarValue);
+            selectionBarView.setVisibility(View.VISIBLE);
+        }
     }
 
     public void configureActionBar(boolean value) {
@@ -218,9 +256,28 @@ public class LibraryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(value);
     }
 
+    public void setPreviousTitle() {
+        currentTitle = previousTitle;
+        titleView.setText(currentTitle);
+    }
+
     public void setTitle(String title) {
-        this.currentTitle = title;
+        previousTitle = currentTitle;
+        currentTitle = title;
         titleView.setText(title);
+    }
+
+    public void resetSelectionBar() {
+        selectionBarValue = "";
+        selectionBarView.setVisibility(View.GONE);
+    }
+
+    public void setSelectionBar(int value) {
+        if (selectionBarValue.isEmpty()) {
+            selectionBarView.setVisibility(View.VISIBLE);
+        }
+        selectionBarValue = String.valueOf(value);
+        selectionBarView.setText(selectionBarValue);
     }
 
     public void updateBookMenuScreen(LabelPrimeData labelPrime) {

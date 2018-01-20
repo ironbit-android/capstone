@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_selection_book_erase_book"
+        android:icon="@mipmap/ic_delete_black_24dp"
+        android:title="@string/menu_selection_book_erase_book"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_selection_book_group_book"
+        android:icon="@mipmap/ic_add_black_24dp"
+        android:title="@string/menu_selection_book_group_book"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_selection_book_group_cancel"
+        android:icon="@mipmap/ic_clear_black_24dp"
+        android:title="@string/menu_selection_book_cancel_group"
+        app:showAsAction="always" />
+
+</menu>

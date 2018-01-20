@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:minWidth="@dimen/add_book_into_label_dialog_min_width"
+    android:minHeight="@dimen/add_book_into_label_dialog_min_height">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/add_book_into_label_dialog_vertical_margin"
+        android:padding="@dimen/general_margin_title"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-regular"
+        android:textSize="@dimen/general_subheading_text_size"
+        android:text="@string/collection" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="@dimen/general_margin_vertical_between_items"
+        android:background="@color/colorPrimary" />
+
+    <ScrollView
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/dialog_add_book_into_label_collection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"/>
+
+    </ScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="@dimen/general_margin_vertical_between_items"
+        android:background="@color/colorPrimary" />
+
+    <Button
+        android:id="@+id/dialog_add_book_into_label_cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="@dimen/general_margin_in_borders"
+        style="?android:attr/borderlessButtonStyle"
+        android:text="@string/dialog_cancel"/>
+
+</LinearLayout>

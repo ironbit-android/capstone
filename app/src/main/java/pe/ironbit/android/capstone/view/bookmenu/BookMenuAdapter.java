@@ -10,21 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pe.ironbit.android.capstone.R;
-import pe.ironbit.android.capstone.event.base.BaseListener;
 import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
 
 public class BookMenuAdapter extends RecyclerView.Adapter<BookMenuHolder> {
-    BaseListener listener;
+    private BookMenuListener listener;
 
-    StorageService service;
+    private StorageService service;
 
-    List<BookPrimeData> list;
+    private List<Float> alphaList;
 
-    public BookMenuAdapter(BaseListener listener, StorageService service) {
+    private List<BookPrimeData> bookList;
+
+    public BookMenuAdapter(BookMenuListener listener, StorageService service) {
         this.listener = listener;
         this.service = service;
-        list = new ArrayList<>();
+        bookList = new ArrayList<>();
+        alphaList = new ArrayList<>();
     }
 
     @Override
@@ -41,30 +43,32 @@ public class BookMenuAdapter extends RecyclerView.Adapter<BookMenuHolder> {
 
     @Override
     public void onBindViewHolder(BookMenuHolder holder, int position) {
-        BookPrimeData book = list.get(position);
-        holder.bind(position, book, service);
+        float alpha = alphaList.get(position);
+        BookPrimeData book = bookList.get(position);
+        holder.bind(service, position, book, alpha);
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return bookList.size();
     }
 
-    public void setList(List<BookPrimeData> list) {
-        if (list == null) {
+    public void update(List<BookPrimeData> bookList, List<Float> alphaList) {
+        if ((bookList == null) || (alphaList == null)) {
             return;
         }
 
-        this.list = list;
+        this.bookList = bookList;
+        this.alphaList = alphaList;
         notifyDataSetChanged();
     }
 
-    public void setItem(BookPrimeData data, int index) {
-        if (index >= list.size()) {
+    public void setAlpha(int index, float alpha) {
+        if (index >= alphaList.size()) {
             return;
         }
 
-        list.set(index, data);
+        alphaList.set(index, alpha);
         notifyDataSetChanged();
     }
 }
