@@ -10,7 +10,9 @@ import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -55,6 +57,14 @@ public class LibraryActivity extends AppCompatActivity {
 
     private static final String IS_BACK_ICON_ACTIVE = "IS_BACK_ICON_ACTIVE";
 
+    private static final String ACTIVITY_MODE = "ACTIVITY_MODE";
+
+    public enum ActivityMode {
+        BookMenu,
+        BookSelection,
+        ManagerLabel
+    }
+
     private int totalBooksLoaded;
 
     private int totalBooksLibrary;
@@ -70,6 +80,8 @@ public class LibraryActivity extends AppCompatActivity {
     private String selectionBarValue;
 
     private boolean isBackIconActive;
+
+    private ActivityMode activityMode;
 
     @BindView(R.id.activity_library_prime_screen)
     View primeView;
@@ -90,6 +102,12 @@ public class LibraryActivity extends AppCompatActivity {
     @BindView(R.id.activity_library_toolbar_selection)
     TextView selectionBarView;
 
+    @BindView(R.id.activity_library_toolbar_left_icon)
+    ImageView toolbarLeftIconView;
+
+    @BindView(R.id.activity_library_toolbar_right_icon)
+    ImageView toolbarRightIconView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +124,7 @@ public class LibraryActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(ACTIVITY_MODE, activityMode);
         outState.putBoolean(IS_BACK_ICON_ACTIVE, isBackIconActive);
         outState.putString(ACTIVITY_LIBRARY_CURRENT_TITLE, currentTitle);
         outState.putString(ACTIVITY_LIBRARY_PREVIOUS_TITLE, previousTitle);
@@ -129,6 +148,7 @@ public class LibraryActivity extends AppCompatActivity {
 
             setTitle(previousTitle);
             configureActionBar(false);
+            setActivityMode(ActivityMode.BookMenu);
             return;
         }
 
@@ -139,6 +159,7 @@ public class LibraryActivity extends AppCompatActivity {
                 setPreviousTitle();
                 resetSelectionBar();
                 configureActionBar(false);
+                setActivityMode(ActivityMode.BookMenu);
                 return;
             }
         }
@@ -150,6 +171,10 @@ public class LibraryActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return super.onSupportNavigateUp();
+    }
+
+    public void onCLickToolbarMenu(View view) {
+        drawerLayout.openDrawer(Gravity.LEFT);
     }
 
     public void onClickManagerOption(View view) {
@@ -173,6 +198,7 @@ public class LibraryActivity extends AppCompatActivity {
         ((BookMenuFragment)bookMenuFragment).updateView();
         closeNavigationDrawer();
         configureActionBar(true);
+        setActivityMode(ActivityMode.ManagerLabel);
         setTitle(getString(R.string.manager_label_title));
     }
 
@@ -189,6 +215,7 @@ public class LibraryActivity extends AppCompatActivity {
                    .commit();
         }
 
+        setActivityMode(ActivityMode.BookMenu);
         ((BookMenuFragment)bookMenuFragment).updateModeGlobal();
         closeNavigationDrawer();
         configureActionBar(false);
@@ -208,6 +235,7 @@ public class LibraryActivity extends AppCompatActivity {
                     .commit();
         }
 
+        setActivityMode(ActivityMode.BookMenu);
         ((BookMenuFragment)bookMenuFragment).updateModelLocal();
         closeNavigationDrawer();
         configureActionBar(false);
@@ -230,6 +258,7 @@ public class LibraryActivity extends AppCompatActivity {
             }
         });
 
+        setActivityMode(ActivityMode.BookMenu);
         closeNavigationDrawer();
         configureActionBar(false);
         setTitle(labelPrime.getLabelName());
@@ -248,6 +277,7 @@ public class LibraryActivity extends AppCompatActivity {
 
     private void configureVariables(Bundle bundle) {
         if (bundle != null) {
+            activityMode = (ActivityMode) bundle.get(ACTIVITY_MODE);
             isBackIconActive = bundle.getBoolean(IS_BACK_ICON_ACTIVE);
             currentTitle = bundle.getString(ACTIVITY_LIBRARY_CURRENT_TITLE);
             previousTitle = bundle.getString(ACTIVITY_LIBRARY_PREVIOUS_TITLE);
@@ -261,6 +291,7 @@ public class LibraryActivity extends AppCompatActivity {
                 }
             });
         } else {
+            activityMode = ActivityMode.BookMenu;
             isBackIconActive = false;
             selectionBarValue = "";
             currentTitle = getString(R.string.cloud);
@@ -274,6 +305,7 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     private void configureActivity() {
+        configActivityMode();
         setSupportActionBar(toolbar);
 
         titleView.setText(currentTitle);
@@ -317,6 +349,33 @@ public class LibraryActivity extends AppCompatActivity {
         }
         selectionBarValue = String.valueOf(value);
         selectionBarView.setText(selectionBarValue);
+    }
+
+    public void setActivityMode(ActivityMode activityMode) {
+        this.activityMode = activityMode;
+        configActivityMode();
+    }
+
+    private void configActivityMode() {
+        if (activityMode == ActivityMode.BookMenu) {
+            if (isDevicePhone()) {
+                toolbarLeftIconView.setVisibility(View.VISIBLE);
+            } else {
+                toolbarLeftIconView.setVisibility(View.GONE);
+            }
+            toolbarRightIconView.setVisibility(View.VISIBLE);
+            return;
+        }
+        if (activityMode == ActivityMode.BookSelection) {
+            toolbarLeftIconView.setVisibility(View.GONE);
+            toolbarRightIconView.setVisibility(View.GONE);
+            return;
+        }
+        if (activityMode == ActivityMode.ManagerLabel) {
+            toolbarLeftIconView.setVisibility(View.GONE);
+            toolbarRightIconView.setVisibility(View.GONE);
+            return;
+        }
     }
 
     private void loadMainMenu() {

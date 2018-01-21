@@ -186,7 +186,6 @@ public class BookMenuFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-
     private void performAddBookIntoLabelDialog() {
         AddBookIntoLabelDialog dialog = AddBookIntoLabelDialog.newInstance(bookSelectionList);
         dialog.show(getFragmentManager(), AddBookIntoLabelDialog.class.getSimpleName());
@@ -207,22 +206,14 @@ public class BookMenuFragment extends Fragment {
             bookSelectionList.clear();
             isSelectOptionActive = false;
             setHasOptionsMenu(isSelectOptionActive);
-            if (isDevicePhone()) {
-                updateActionBar(false);
-            }
+            updateActionBar(false);
         }
+        setActivityMode(LibraryActivity.ActivityMode.BookMenu);
     }
 
     public void performOnFinishedAddBookIntoLabelDialog() {
-        resetAlphaList();
-        resetSelectionBar();
-        bookSelectionList.clear();
-        isSelectOptionActive = false;
-        setHasOptionsMenu(isSelectOptionActive);
+        doOnCloseSelectionMode();
         updatePreviousTitle();
-        if (isDevicePhone()) {
-            updateActionBar(false);
-        }
 
         updateView();
     }
@@ -316,14 +307,17 @@ public class BookMenuFragment extends Fragment {
             isSelectOptionActive = true;
             setHasOptionsMenu(isSelectOptionActive);
             updateTitle(getString(R.string.menu_selection_book_title));
-            if (isDevicePhone()) {
-                updateActionBar(true);
-            }
+            updateActionBar(true);
+            setActivityMode(LibraryActivity.ActivityMode.BookSelection);
         }
     }
 
     public void updateView() {
         adapter.update(currentBookPrimeList, alphaList);
+    }
+
+    private void setActivityMode(LibraryActivity.ActivityMode activityMode) {
+        ((LibraryActivity)getActivity()).setActivityMode(activityMode);
     }
 
     private void resetAlphaList() {
