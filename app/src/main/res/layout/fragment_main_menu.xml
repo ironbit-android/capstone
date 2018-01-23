@@ -55,7 +55,7 @@
             android:fontFamily="sans-serif-regular"
             android:textSize="@dimen/general_body_text_size"
             android:text="@string/cloud"
-            android:onClick="onClickMainMenuCloud" />
+            android:onClick="onClickMainMenuCloudOption" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -65,7 +65,7 @@
             android:fontFamily="sans-serif-regular"
             android:layout_margin="@dimen/general_margin_vertical_between_items"
             android:text="@string/local"
-            android:onClick="onClickMainMenuLocal" />
+            android:onClick="onClickMainMenuLocalOption" />
 
         <View
             android:layout_width="match_parent"

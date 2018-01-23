@@ -3,7 +3,6 @@ package pe.ironbit.android.capstone.screen.fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -34,7 +33,7 @@ import pe.ironbit.android.capstone.util.DeviceMetaData;
 import pe.ironbit.android.capstone.view.bookmenu.BookMenuAdapter;
 import pe.ironbit.android.capstone.view.bookmenu.BookMenuListener;
 
-public class BookMenuFragment extends Fragment {
+public class BookMenuFragment extends BaseFragment {
     private static final float ALPHA_DEFAULT = 1.0f;
 
     private static final String CURRENT_BOOK_PRIME_LIST = "CURRENT_BOOK_PRIME_LIST";
@@ -147,9 +146,8 @@ public class BookMenuFragment extends Fragment {
 
         {
             if (isSelectOptionActive) {
-                if (isDevicePhone()) {
-                    updateActionBar(true);
-                }
+                updateSelectionBar(bookSelectionList.size());
+                setActivityMode(LibraryActivity.ActivityMode.BookSelection);
             }
         }
         {
@@ -180,10 +178,30 @@ public class BookMenuFragment extends Fragment {
             return true;
         }
         if (item.getItemId() == R.id.menu_selection_book_group_cancel) {
-            performEndSelection();
+            performOnFinishAction();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void doOnShowFragment() {
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void doOnHideFragment() {
+        doOnCloseSelectionMode();
+    }
+
+    @Override
+    public boolean doOnBackPressed() {
+        if (!isHidden()) {
+            return doOnCloseSelectionMode();
+        }
+        return super.doOnBackPressed();
     }
 
     private void performAddBookIntoLabelDialog() {
@@ -191,31 +209,21 @@ public class BookMenuFragment extends Fragment {
         dialog.show(getFragmentManager(), AddBookIntoLabelDialog.class.getSimpleName());
     }
 
-    public boolean performEndSelection() {
+    public boolean doOnCloseSelectionMode() {
         boolean outcome = isSelectOptionActive;
-        if (outcome) {
-            performOnFinishedAddBookIntoLabelDialog();
-        }
+
+        resetAlphaList();
+        bookSelectionList.clear();
+        isSelectOptionActive = false;
+        setHasOptionsMenu(isSelectOptionActive);
+
         return outcome;
     }
 
-    public void doOnCloseSelectionMode() {
-        resetAlphaList();
-        if (isSelectOptionActive) {
-            resetSelectionBar();
-            bookSelectionList.clear();
-            isSelectOptionActive = false;
-            setHasOptionsMenu(isSelectOptionActive);
-            updateActionBar(false);
-        }
-        setActivityMode(LibraryActivity.ActivityMode.BookMenu);
-    }
-
-    public void performOnFinishedAddBookIntoLabelDialog() {
+    public void performOnFinishAction() {
         doOnCloseSelectionMode();
         updatePreviousTitle();
-
-        updateView();
+        setActivityMode(LibraryActivity.ActivityMode.BookMenu);
     }
 
     public void updateModeGlobal() {
@@ -286,7 +294,7 @@ public class BookMenuFragment extends Fragment {
 
     private void doOnShortClickInBookItem(int position) {
         if (isSelectOptionActive) {
-            performOnFinishedAddBookIntoLabelDialog();
+            performOnFinishAction();
         }
     }
 
@@ -306,8 +314,6 @@ public class BookMenuFragment extends Fragment {
         if (!isSelectOptionActive) {
             isSelectOptionActive = true;
             setHasOptionsMenu(isSelectOptionActive);
-            updateTitle(getString(R.string.menu_selection_book_title));
-            updateActionBar(true);
             setActivityMode(LibraryActivity.ActivityMode.BookSelection);
         }
     }
@@ -324,20 +330,8 @@ public class BookMenuFragment extends Fragment {
         alphaList = Collection.assign(alphaList, currentBookPrimeList.size(), ALPHA_DEFAULT);
     }
 
-    private void updateActionBar(boolean value) {
-        ((LibraryActivity) getActivity()).configureActionBar(value);
-    }
-
     private void updatePreviousTitle() {
         ((LibraryActivity) getActivity()).setPreviousTitle();
-    }
-
-    private void updateTitle(String value) {
-        ((LibraryActivity) getActivity()).setTitle(value);
-    }
-
-    private void resetSelectionBar() {
-        ((LibraryActivity) getActivity()).resetSelectionBar();
     }
 
     private void updateSelectionBar(int value) {

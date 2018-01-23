@@ -12,8 +12,11 @@ import java.util.List;
 import pe.ironbit.android.capstone.R;
 import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
+import pe.ironbit.android.capstone.util.Collection;
 
 public class BookMenuAdapter extends RecyclerView.Adapter<BookMenuHolder> {
+    private static final float ALPHA_DEFAULT = 1.0f;
+
     private BookMenuListener listener;
 
     private StorageService service;
@@ -51,6 +54,12 @@ public class BookMenuAdapter extends RecyclerView.Adapter<BookMenuHolder> {
     @Override
     public int getItemCount() {
         return bookList.size();
+    }
+
+    public void update(List<BookPrimeData> bookList) {
+        alphaList = Collection.initialize(bookList.size(), ALPHA_DEFAULT);
+        this.bookList = bookList;
+        notifyDataSetChanged();
     }
 
     public void update(List<BookPrimeData> bookList, List<Float> alphaList) {

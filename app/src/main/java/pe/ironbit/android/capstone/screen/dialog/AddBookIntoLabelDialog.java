@@ -186,6 +186,6 @@ public class AddBookIntoLabelDialog extends DialogFragment {
         dismiss();
 
         Fragment fragment = getFragmentManager().findFragmentByTag(BookMenuFragment.class.getSimpleName());
-        ((BookMenuFragment)fragment).performOnFinishedAddBookIntoLabelDialog();
+        ((BookMenuFragment)fragment).performOnFinishAction();
     }
 }

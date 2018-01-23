@@ -1,10 +1,12 @@
 package pe.ironbit.android.capstone.screen.activity;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
@@ -12,11 +14,14 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -31,7 +36,9 @@ import pe.ironbit.android.capstone.model.BookPrime.BookPrimeMapper;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
 import pe.ironbit.android.capstone.model.LabelPrime.LabelPrimeData;
 import pe.ironbit.android.capstone.model.Library.LibraryData;
+import pe.ironbit.android.capstone.screen.fragment.BaseFragment;
 import pe.ironbit.android.capstone.screen.fragment.BookMenuFragment;
+import pe.ironbit.android.capstone.screen.fragment.BookSearchFragment;
 import pe.ironbit.android.capstone.screen.fragment.MainMenuFragment;
 import pe.ironbit.android.capstone.screen.fragment.ManagerLabelFragment;
 import pe.ironbit.android.capstone.storage.contract.BookPrimeContract;
@@ -60,10 +67,14 @@ public class LibraryActivity extends AppCompatActivity {
     private static final String ACTIVITY_MODE = "ACTIVITY_MODE";
 
     public enum ActivityMode {
+        None,
         BookMenu,
+        BookSearch,
         BookSelection,
         ManagerLabel
     }
+
+    private Map<ActivityMode, String> fragmentTagMap;
 
     private int totalBooksLoaded;
 
@@ -108,6 +119,9 @@ public class LibraryActivity extends AppCompatActivity {
     @BindView(R.id.activity_library_toolbar_right_icon)
     ImageView toolbarRightIconView;
 
+    @BindView(R.id.activity_library_book_search)
+    EditText bookSearchView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,10 +130,9 @@ public class LibraryActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         configureVariables(savedInstanceState);
-        configureActivity();
 
-        loadMainMenu();
-        loadBookDataForBookMenu();
+        loadMainMenuFragment();
+        configActivityMode();
     }
 
     @Override
@@ -134,36 +147,50 @@ public class LibraryActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+    private void configureVariables(Bundle bundle) {
+        if (bundle != null) {
+            activityMode = (ActivityMode) bundle.get(ACTIVITY_MODE);
+            isBackIconActive = bundle.getBoolean(IS_BACK_ICON_ACTIVE);
+            currentTitle = bundle.getString(ACTIVITY_LIBRARY_CURRENT_TITLE);
+            previousTitle = bundle.getString(ACTIVITY_LIBRARY_PREVIOUS_TITLE);
+            selectionBarValue = bundle.getString(ACTIVITY_LIBRARY_SELECTION_BAR);
+            bookPrimeDataList = BookPrimeFactory.createBookPrimeDataList(bundle.<BookPrimeParcelable>getParcelableArrayList(ACTIVITY_LIBRARY_BOOK_PRIME));
+            final int[] position = bundle.getIntArray(ACTIVITY_LIBRARY_SCROLL);
+            scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    scrollView.scrollTo(position[0], position[1]);
+                }
+            });
+        } else {
+            activityMode = ActivityMode.None;
+            isBackIconActive = false;
+            selectionBarValue = "";
+            currentTitle = getString(R.string.cloud);
+            previousTitle = currentTitle;
+            bookPrimeDataList = new ArrayList<>();
+        }
+
+        totalBooksLoaded = 0;
+        totalBooksLibrary = 0;
+        storageService = new StorageService(getApplicationContext());
+
+        fragmentTagMap = new HashMap<>();
+        fragmentTagMap.put(ActivityMode.BookMenu, BookMenuFragment.class.getSimpleName());
+        fragmentTagMap.put(ActivityMode.BookSearch, BookSearchFragment.class.getSimpleName());
+        fragmentTagMap.put(ActivityMode.ManagerLabel, ManagerLabelFragment.class.getSimpleName());
+
+        setSupportActionBar(toolbar);
+        titleView.setText(currentTitle);
+    }
+
     @Override
     public void onBackPressed() {
-        FragmentManager manager = getSupportFragmentManager();
-
-        Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
-        if ((managerLabelFragment != null) && (!managerLabelFragment.isHidden())) {
-            Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
-            manager.beginTransaction()
-                   .hide(managerLabelFragment)
-                   .show(bookMenuFragment)
-                   .commitNow();
-
+        if (doOnBackPressed()) {
             setTitle(previousTitle);
-            configureActionBar(false);
             setActivityMode(ActivityMode.BookMenu);
             return;
         }
-
-        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
-        if ((bookMenuFragment != null) && (!bookMenuFragment.isHidden())) {
-            boolean state = ((BookMenuFragment) bookMenuFragment).performEndSelection();
-            if (state) {
-                setPreviousTitle();
-                resetSelectionBar();
-                configureActionBar(false);
-                setActivityMode(ActivityMode.BookMenu);
-                return;
-            }
-        }
-
         super.onBackPressed();
     }
 
@@ -173,72 +200,33 @@ public class LibraryActivity extends AppCompatActivity {
         return super.onSupportNavigateUp();
     }
 
-    public void onCLickToolbarMenu(View view) {
+    public void onClickToolbarLeftMenu(View view) {
         drawerLayout.openDrawer(Gravity.LEFT);
     }
 
-    public void onClickManagerOption(View view) {
-        FragmentManager manager = getSupportFragmentManager();
-
-        Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
-        if (managerLabelFragment == null) {
-            managerLabelFragment = new ManagerLabelFragment();
-            manager.beginTransaction()
-                   .add(R.id.activity_library_main_screen, managerLabelFragment, ManagerLabelFragment.class.getSimpleName())
-                   .commit();
+    public void onClickToolbarRightMenu(View view) {
+        if (activityMode == ActivityMode.BookMenu) {
+            setActivityMode(ActivityMode.BookSearch);
         }
+    }
 
-        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
-        manager.beginTransaction()
-                .hide(bookMenuFragment)
-                .show(managerLabelFragment)
-                .commit();
-
-        ((BookMenuFragment)bookMenuFragment).doOnCloseSelectionMode();
-        ((BookMenuFragment)bookMenuFragment).updateView();
+    public void onClickManagerOption(View view) {
         closeNavigationDrawer();
-        configureActionBar(true);
         setActivityMode(ActivityMode.ManagerLabel);
         setTitle(getString(R.string.manager_label_title));
     }
 
-    public void onClickMainMenuCloud(View view) {
-        FragmentManager manager = getSupportFragmentManager();
-
-        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
-
-        Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
-        if ((managerLabelFragment != null) && !managerLabelFragment.isHidden()) {
-            manager.beginTransaction()
-                   .show(bookMenuFragment)
-                   .hide(managerLabelFragment)
-                   .commit();
-        }
-
-        setActivityMode(ActivityMode.BookMenu);
-        ((BookMenuFragment)bookMenuFragment).updateModeGlobal();
+    public void onClickMainMenuCloudOption(View view) {
         closeNavigationDrawer();
-        configureActionBar(false);
+        setActivityMode(ActivityMode.BookMenu);
+        loadBookMenuGlobalModel();
         setTitle(getString(R.string.cloud));
     }
 
-    public void onClickMainMenuLocal(View view) {
-        FragmentManager manager = getSupportFragmentManager();
-
-        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
-
-        Fragment managerLabelFragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
-        if ((managerLabelFragment != null) && !managerLabelFragment.isHidden()) {
-            manager.beginTransaction()
-                    .show(bookMenuFragment)
-                    .hide(managerLabelFragment)
-                    .commit();
-        }
-
-        setActivityMode(ActivityMode.BookMenu);
-        ((BookMenuFragment)bookMenuFragment).updateModelLocal();
+    public void onClickMainMenuLocalOption(View view) {
         closeNavigationDrawer();
-        configureActionBar(false);
+        setActivityMode(ActivityMode.BookMenu);
+        loadBookMenuLocalModel();
         setTitle(getString(R.string.local));
     }
 
@@ -258,9 +246,10 @@ public class LibraryActivity extends AppCompatActivity {
             }
         });
 
+        showFragment(ActivityMode.BookMenu);
         setActivityMode(ActivityMode.BookMenu);
+
         closeNavigationDrawer();
-        configureActionBar(false);
         setTitle(labelPrime.getLabelName());
         getSupportLoaderManager().initLoader(LabelBookContract.LOADER_IDENTIFIER, null, loader);
     }
@@ -272,47 +261,6 @@ public class LibraryActivity extends AppCompatActivity {
     private void closeNavigationDrawer() {
         if (isDevicePhone()) {
             drawerLayout.closeDrawers();
-        }
-    }
-
-    private void configureVariables(Bundle bundle) {
-        if (bundle != null) {
-            activityMode = (ActivityMode) bundle.get(ACTIVITY_MODE);
-            isBackIconActive = bundle.getBoolean(IS_BACK_ICON_ACTIVE);
-            currentTitle = bundle.getString(ACTIVITY_LIBRARY_CURRENT_TITLE);
-            previousTitle = bundle.getString(ACTIVITY_LIBRARY_PREVIOUS_TITLE);
-            selectionBarValue = bundle.getString(ACTIVITY_LIBRARY_SELECTION_BAR);
-            bookPrimeDataList = BookPrimeFactory.createBookPrimeDataList(bundle.<BookPrimeParcelable>getParcelableArrayList(ACTIVITY_LIBRARY_BOOK_PRIME));
-            final int[] position = bundle.getIntArray(ACTIVITY_LIBRARY_SCROLL);
-            scrollView.post(new Runnable() {
-                @Override
-                public void run() {
-                    scrollView.scrollTo(position[0], position[1]);
-                }
-            });
-        } else {
-            activityMode = ActivityMode.BookMenu;
-            isBackIconActive = false;
-            selectionBarValue = "";
-            currentTitle = getString(R.string.cloud);
-            previousTitle = currentTitle;
-            bookPrimeDataList = new ArrayList<>();
-        }
-
-        totalBooksLoaded = 0;
-        totalBooksLibrary = 0;
-        storageService = new StorageService(getApplicationContext());
-    }
-
-    private void configureActivity() {
-        configActivityMode();
-        setSupportActionBar(toolbar);
-
-        titleView.setText(currentTitle);
-        configureActionBar(isBackIconActive);
-        if (!selectionBarValue.isEmpty()) {
-            selectionBarView.setText(selectionBarValue);
-            selectionBarView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -338,15 +286,7 @@ public class LibraryActivity extends AppCompatActivity {
         titleView.setText(title);
     }
 
-    public void resetSelectionBar() {
-        selectionBarValue = "";
-        selectionBarView.setVisibility(View.GONE);
-    }
-
     public void setSelectionBar(int value) {
-        if (selectionBarValue.isEmpty()) {
-            selectionBarView.setVisibility(View.VISIBLE);
-        }
         selectionBarValue = String.valueOf(value);
         selectionBarView.setText(selectionBarValue);
     }
@@ -357,28 +297,121 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     private void configActivityMode() {
+        if (activityMode == ActivityMode.None) {
+            performInitialization();
+            return;
+        }
         if (activityMode == ActivityMode.BookMenu) {
-            if (isDevicePhone()) {
-                toolbarLeftIconView.setVisibility(View.VISIBLE);
-            } else {
-                toolbarLeftIconView.setVisibility(View.GONE);
-            }
-            toolbarRightIconView.setVisibility(View.VISIBLE);
+            loadBookMenuFragment();
             return;
         }
         if (activityMode == ActivityMode.BookSelection) {
-            toolbarLeftIconView.setVisibility(View.GONE);
-            toolbarRightIconView.setVisibility(View.GONE);
+            loadBookMenuSelectionFunctionality();
             return;
         }
         if (activityMode == ActivityMode.ManagerLabel) {
-            toolbarLeftIconView.setVisibility(View.GONE);
-            toolbarRightIconView.setVisibility(View.GONE);
+            loadManagerLabelFragment();
+            return;
+        }
+        if (activityMode == ActivityMode.BookSearch) {
+            loadBookSearchFragment();
             return;
         }
     }
 
-    private void loadMainMenu() {
+    private void loadBookMenuSelectionFunctionality() {
+        titleView.setVisibility(View.VISIBLE);
+        bookSearchView.setVisibility(View.GONE);
+        selectionBarView.setVisibility(View.VISIBLE);
+        titleView.setVisibility(View.VISIBLE);
+        toolbarLeftIconView.setVisibility(View.GONE);
+        toolbarRightIconView.setVisibility(View.GONE);
+
+        configureActionBar(true);
+        setTitle(getString(R.string.menu_selection_book_title));
+    }
+
+    private void loadBookMenuFragment() {
+        loadBookMenuBaseFragment();
+        showFragment(ActivityMode.BookMenu);
+
+        selectionBarValue = "";
+        titleView.setVisibility(View.VISIBLE);
+        bookSearchView.setVisibility(View.GONE);
+        selectionBarView.setVisibility(View.GONE);
+        if (isDevicePhone()) {
+            toolbarLeftIconView.setVisibility(View.VISIBLE);
+        } else {
+            toolbarLeftIconView.setVisibility(View.GONE);
+        }
+        toolbarRightIconView.setVisibility(View.VISIBLE);
+
+        configureActionBar(false);
+    }
+
+    private void loadManagerLabelFragment() {
+        loadManagerLabelBaseFragment();
+        showFragment(ActivityMode.ManagerLabel);
+
+        selectionBarValue = "";
+        titleView.setVisibility(View.VISIBLE);
+        bookSearchView.setVisibility(View.GONE);
+        selectionBarView.setVisibility(View.GONE);
+        toolbarLeftIconView.setVisibility(View.GONE);
+        toolbarRightIconView.setVisibility(View.GONE);
+
+        configureActionBar(true);
+    }
+
+    private void loadBookSearchFragment() {
+        loadBookSearchBaseFragment();
+        showFragment(ActivityMode.BookSearch);
+
+        selectionBarValue = "";
+        titleView.setVisibility(View.GONE);
+        bookSearchView.setVisibility(View.VISIBLE);
+        selectionBarView.setVisibility(View.VISIBLE);
+        toolbarLeftIconView.setVisibility(View.GONE);
+        toolbarRightIconView.setVisibility(View.GONE);
+
+        configureActionBar(true);
+        selectionBarView.setText(selectionBarValue);
+    }
+
+    private void loadBookMenuBaseFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+        if (fragment == null) {
+            fragment = BookMenuFragment.newInstance(bookPrimeDataList);
+            manager.beginTransaction()
+                   .add(R.id.activity_library_main_screen, fragment, BookMenuFragment.class.getSimpleName())
+                   .commit();
+        }
+    }
+
+    private void loadManagerLabelBaseFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment = manager.findFragmentByTag(ManagerLabelFragment.class.getSimpleName());
+        if (fragment == null) {
+            fragment = new ManagerLabelFragment();
+            manager.beginTransaction()
+                   .add(R.id.activity_library_main_screen, fragment, ManagerLabelFragment.class.getSimpleName())
+                   .commit();
+        }
+    }
+
+    private void loadBookSearchBaseFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment = manager.findFragmentByTag(BookSearchFragment.class.getSimpleName());
+        if (fragment == null) {
+            fragment = BookSearchFragment.newInstance(bookPrimeDataList);
+            manager.beginTransaction()
+                   .add(R.id.activity_library_main_screen, fragment, BookSearchFragment.class.getSimpleName())
+                   .commit();
+        }
+    }
+
+    private void loadMainMenuFragment() {
         FragmentManager manager = getSupportFragmentManager();
         Fragment fragment = manager.findFragmentByTag(MainMenuFragment.class.getSimpleName());
         if (fragment == null) {
@@ -389,44 +422,86 @@ public class LibraryActivity extends AppCompatActivity {
         }
     }
 
-    private void loadBookDataForBookMenu() {
+    private void showFragment(ActivityMode key) {
+        FragmentManager manager = getSupportFragmentManager();
+
+        FragmentTransaction transaction = manager.beginTransaction();
+        for (Map.Entry<ActivityMode, String> entry : fragmentTagMap.entrySet()) {
+            Fragment fragment = manager.findFragmentByTag(entry.getValue());
+            if (fragment == null) {
+                continue;
+            }
+            if (key == entry.getKey()) {
+                transaction.show(fragment);
+                ((BaseFragment) fragment).doOnShowFragment();
+            } else {
+                if (!fragment.isHidden()) {
+                    transaction.hide(fragment);
+                    ((BaseFragment) fragment).doOnHideFragment();
+                }
+            }
+        }
+        transaction.commit();
+    }
+
+    private boolean doOnBackPressed() {
+        FragmentManager manager = getSupportFragmentManager();
+
+        boolean outcome = false;
+        for (Map.Entry<ActivityMode, String> entry : fragmentTagMap.entrySet()) {
+            Fragment fragment = manager.findFragmentByTag(entry.getValue());
+            if (fragment == null) {
+                continue;
+            }
+            outcome = ((BaseFragment)fragment).doOnBackPressed();
+            if (outcome) {
+                return outcome;
+            }
+        }
+
+        return outcome;
+    }
+
+    private void loadBookMenuGlobalModel() {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+        ((BookMenuFragment)bookMenuFragment).updateModeGlobal();
+    }
+
+    private void loadBookMenuLocalModel() {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment bookMenuFragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
+        ((BookMenuFragment)bookMenuFragment).updateModelLocal();
+    }
+
+    private void performInitialization() {
         BookPrimeLoader loader = new BookPrimeLoader(getApplicationContext());
         loader.loadList()
               .setListener(new OnStorageListener() {
                   @Override
                   public void onEvent(List list) {
-                      executeBookDataLogic(list);
+                      getLoaderManager().destroyLoader(BookPrimeContract.LOADER_IDENTIFIER);
+
+                      if (list.size() == 0) {
+                          if (isInternetWorking()) {
+                              loadLibraryDataFromFirebase();
+                          } else {
+                              showMessageInternetProblem();
+                          }
+                      } else {
+                          bookPrimeDataList = list;
+                          new Handler().post(new Runnable() {
+                              @Override
+                              public void run() {
+                                  setTitle(currentTitle);
+                                  setActivityMode(ActivityMode.BookMenu);
+                              }
+                          });
+                      }
                   }
               });
 
         getLoaderManager().initLoader(BookPrimeContract.LOADER_IDENTIFIER, null, loader);
-    }
-
-    private void executeBookDataLogic(List list) {
-        getLoaderManager().destroyLoader(BookPrimeContract.LOADER_IDENTIFIER);
-
-        if (list.size() == 0) {
-            if (isInternetWorking()) {
-                loadLibraryDataFromFirebase();
-            } else {
-                showMessageInternetProblem();
-            }
-        } else {
-            bookPrimeDataList = list;
-            loadBookMenuScreen();
-        }
-    }
-
-    private void loadBookMenuScreen() {
-        FragmentManager manager = getSupportFragmentManager();
-
-        Fragment fragment = manager.findFragmentByTag(BookMenuFragment.class.getSimpleName());
-        if (fragment == null) {
-            fragment = BookMenuFragment.newInstance(bookPrimeDataList);
-            manager.beginTransaction()
-                   .add(R.id.activity_library_main_screen, fragment, BookMenuFragment.class.getSimpleName())
-                   .commit();
-        }
     }
 
     private void loadLibraryDataFromFirebase() {
@@ -436,33 +511,35 @@ public class LibraryActivity extends AppCompatActivity {
             public void execute(LibraryData libraryData) {
                 totalBooksLoaded = 0;
                 totalBooksLibrary = libraryData.getTotal();
-                loadBookDataFromFirebase(libraryData);
+                for (String identifier : libraryData.getBooks()) {
+                    BookPrimeDelegate delegate = new BookPrimeDelegate(storageService, Integer.parseInt(identifier));
+
+                    delegate.setAction(new Action<BookPrimeData>() {
+                        @Override
+                        public void execute(BookPrimeData bookPrimeData) {
+                            bookPrimeDataList.add(bookPrimeData);
+                            BookPrimeMapper.insert(getContentResolver(), bookPrimeData);
+                            finishedLoadBookDataFromFirebase();
+                        }
+                    });
+
+                    storageService.process(delegate);
+                }
             }
         });
 
         storageService.process(delegate);
     }
 
-    private void loadBookDataFromFirebase(LibraryData library) {
-        for (String identifier : library.getBooks()) {
-            BookPrimeDelegate delegate = new BookPrimeDelegate(storageService, Integer.parseInt(identifier));
-
-            delegate.setAction(new Action<BookPrimeData>() {
-                @Override
-                public void execute(BookPrimeData bookPrimeData) {
-                    bookPrimeDataList.add(bookPrimeData);
-                    BookPrimeMapper.insert(getContentResolver(), bookPrimeData);
-                    finishedLoadBookDataFromFirebase();
-                }
-            });
-
-            storageService.process(delegate);
-        }
-    }
-
     private synchronized void finishedLoadBookDataFromFirebase() {
         if (totalBooksLibrary == ++totalBooksLoaded) {
-            loadBookMenuScreen();
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    setTitle(currentTitle);
+                    setActivityMode(ActivityMode.BookMenu);
+                }
+            });
         }
     }
 

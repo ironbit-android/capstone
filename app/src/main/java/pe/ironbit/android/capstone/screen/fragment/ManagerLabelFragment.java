@@ -3,7 +3,6 @@ package pe.ironbit.android.capstone.screen.fragment;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -35,7 +34,7 @@ import pe.ironbit.android.capstone.util.DeviceMetaData;
 import pe.ironbit.android.capstone.view.managerlabel.ManagerLabelAdapter;
 import pe.ironbit.android.capstone.view.managerlabel.ManagerLabelListener;
 
-public class ManagerLabelFragment extends Fragment {
+public class ManagerLabelFragment extends BaseFragment {
     private ManagerLabelAdapter adapter;
 
     private Unbinder unbinder;
@@ -90,6 +89,14 @@ public class ManagerLabelFragment extends Fragment {
 
         DialogFragment dialog = CreateLabelDialog.newInstance(newLabelId);
         dialog.show(getFragmentManager(), CreateLabelDialog.class.getSimpleName());
+    }
+
+    @Override
+    public boolean doOnBackPressed() {
+        if (!isHidden()) {
+            return true;
+        }
+        return super.doOnBackPressed();
     }
 
     private void onEditLabelAction(final Integer index) {

@@ -74,6 +74,11 @@
 
     <string name="menu_selection_book_add_failure">Book(s) cannot added to label</string>
 
+    <!-- Book Search Functionality -->
+    <string name="menu_book_search_action">Search</string>
+
+    <string name="menu_book_search_cancel">Cancel</string>
+
     <!-- Dialog -->
     <string name="dialog_accept">Accept</string>
 
