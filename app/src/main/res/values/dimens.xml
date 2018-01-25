@@ -39,6 +39,8 @@
     <!-- Book Search Functionality -->
     <dimen name="book_search_input_width">210dp</dimen>
 
+    <dimen name="book_search_progressbar_size">150dp</dimen>
+
     <!-- Add Book Into Label Dialog -->
     <dimen name="add_book_into_label_dialog_min_width">200dp</dimen>
 

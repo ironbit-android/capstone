@@ -2,8 +2,10 @@ package pe.ironbit.android.capstone.screen.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,9 +15,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,11 +29,15 @@ import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeFactory;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
+import pe.ironbit.android.capstone.screen.activity.LibraryActivity;
+import pe.ironbit.android.capstone.tools.index.Container;
 import pe.ironbit.android.capstone.util.DeviceMetaData;
 import pe.ironbit.android.capstone.view.bookmenu.BookMenuAdapter;
 import pe.ironbit.android.capstone.view.bookmenu.BookMenuListener;
 
 public class BookSearchFragment extends BaseFragment {
+    private static final int ONE_SECOND = 1000;
+
     private static final String BOOK_NUMBER = "BOOK_NUMBER";
 
     private static final String BOOK_SEARCH = "BOOK_SEARCH";
@@ -58,8 +66,13 @@ public class BookSearchFragment extends BaseFragment {
 
     private BookMenuAdapter adapter;
 
+    private Container container;
+
     @BindView(R.id.fragment_book_search_recyclerview)
     RecyclerView recyclerView;
+
+    @BindView(R.id.fragment_book_search_progressbar)
+    ProgressBar progressBarView;
 
     public static BookSearchFragment newInstance(List<BookPrimeData> list) {
         Bundle bundle = new Bundle();
@@ -123,6 +136,7 @@ public class BookSearchFragment extends BaseFragment {
             currentBookList = new ArrayList<>();
         }
 
+        createInvertedIndex();
         loadBookDataIntoScreen(getView());
         updateView();
     }
@@ -136,9 +150,11 @@ public class BookSearchFragment extends BaseFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_book_search_enter) {
+            searchBookAction();
             return true;
         }
         if (item.getItemId() == R.id.menu_book_search_cancel) {
+            searchBookClear();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -160,6 +176,40 @@ public class BookSearchFragment extends BaseFragment {
     @Override
     public boolean doOnBackPressed() {
         return !isHidden();
+    }
+
+    private void searchBookClear() {
+        clearQuery();
+    }
+
+    private void searchBookAction() {
+        adapter.update(new ArrayList<BookPrimeData>());
+        progressBarView.setVisibility(View.VISIBLE);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                progressBarView.setVisibility(View.GONE);
+
+                Set<Integer> outcome = container.verify(getQuery());
+                if (outcome.isEmpty()) {
+                    String message = getString(R.string.menu_book_search_message);
+                    Snackbar.make(((LibraryActivity)getActivity()).getPrimeView(), message, Snackbar.LENGTH_LONG).show();
+                    return;
+                }
+
+                currentBookList.clear();
+                for (Integer id : outcome) {
+                    for (BookPrimeData data : completeBookList) {
+                        if (data.getBookId() == id) {
+                            currentBookList.add(data);
+                            break;
+                        }
+                    }
+                }
+
+                adapter.update(currentBookList);
+            }
+        }, ONE_SECOND);
     }
 
     private void loadBookDataIntoScreen(View view) {
@@ -197,6 +247,22 @@ public class BookSearchFragment extends BaseFragment {
 
     private void updateView() {
         adapter.update(currentBookList);
+    }
+
+    private void createInvertedIndex() {
+        container = new Container();
+        for (BookPrimeData book : completeBookList) {
+            container.set(book.getName(), 0, book.getBookId());
+            container.set(book.getAuthor(), 1, book.getBookId());
+        }
+    }
+
+    private String getQuery() {
+        return ((LibraryActivity)getActivity()).getQuery();
+    }
+
+    private void clearQuery() {
+        ((LibraryActivity)getActivity()).clearQuery();
     }
 
     private static void storeData(Bundle bundle, String key, List<BookPrimeData> list) {

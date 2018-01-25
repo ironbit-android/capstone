@@ -258,6 +258,14 @@ public class LibraryActivity extends AppCompatActivity {
         return primeView;
     }
 
+    public String getQuery() {
+        return bookSearchView.getText().toString();
+    }
+
+    public void clearQuery() {
+        bookSearchView.setText("");
+    }
+
     private void closeNavigationDrawer() {
         if (isDevicePhone()) {
             drawerLayout.closeDrawers();
