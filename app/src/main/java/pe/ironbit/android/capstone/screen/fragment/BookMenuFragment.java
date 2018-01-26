@@ -3,9 +3,9 @@ package pe.ironbit.android.capstone.screen.fragment;
 import android.content.ContentResolver;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -25,15 +25,24 @@ import butterknife.Unbinder;
 import pe.ironbit.android.capstone.R;
 import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.generic.Action;
+import pe.ironbit.android.capstone.model.BookContent.BookContentData;
+import pe.ironbit.android.capstone.model.BookContent.BookContentMapper;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeFactory;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeMapper;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeStatus;
+import pe.ironbit.android.capstone.model.BookTable.BookTableData;
+import pe.ironbit.android.capstone.model.BookTable.BookTableMapper;
 import pe.ironbit.android.capstone.model.LabelBook.LabelBookData;
 import pe.ironbit.android.capstone.screen.activity.LibraryActivity;
 import pe.ironbit.android.capstone.screen.dialog.AddBookIntoLabelDialog;
 import pe.ironbit.android.capstone.screen.dialog.DeleteBookDialog;
+import pe.ironbit.android.capstone.storage.contract.BookContentContract;
+import pe.ironbit.android.capstone.storage.contract.BookTableContract;
+import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
+import pe.ironbit.android.capstone.storage.loader.BookContentLoader;
+import pe.ironbit.android.capstone.storage.loader.BookTableLoader;
 import pe.ironbit.android.capstone.tools.download.BookDownloader;
 import pe.ironbit.android.capstone.util.Collection;
 import pe.ironbit.android.capstone.util.DeviceMetaData;
@@ -348,7 +357,7 @@ public class BookMenuFragment extends BaseFragment {
 
         bookSelectionList.add(book);
         alphaList.set(position, alphaLongClick);
-        updateViewItem(position);
+        updateViewList();
         updateSelectionBar(bookSelectionList.size());
 
         if (!isSelectOptionActive) {
@@ -377,11 +386,11 @@ public class BookMenuFragment extends BaseFragment {
             public void execute(Integer position) {
                 BookPrimeData oldBook = currentBookPrimeList.get(position);
                 BookPrimeData newBook = BookPrimeFactory.create(oldBook.getBookId(),
-                        oldBook.getName(),
-                        oldBook.getAuthor(),
-                        oldBook.getImage(),
-                        oldBook.getFile(),
-                        BookPrimeStatus.Local);
+                                                                oldBook.getName(),
+                                                                oldBook.getAuthor(),
+                                                                oldBook.getImage(),
+                                                                oldBook.getFile(),
+                                                                BookPrimeStatus.Local);
 
                 currentBookPrimeList.set(position, newBook);
                 BookPrimeMapper.update(getActivity().getContentResolver(), newBook);
@@ -427,41 +436,106 @@ public class BookMenuFragment extends BaseFragment {
     }
 
     public void doOnEraseBookAccepted() {
+        List<BookPrimeData> eraseList = new ArrayList<>();
         for (BookPrimeData book : bookSelectionList) {
-            for (int index = 0; index < currentBookPrimeList.size(); ++index) {
-                if (book.getBookId() == currentBookPrimeList.get(index).getBookId()) {
-                    if (currentBookPrimeList.get(index).getStatus() == BookPrimeStatus.Local) {
-                        doOnEraseLocalBook(index);
-                    }
-                }
+            if (book.getStatus() == BookPrimeStatus.Local) {
+                eraseList.add(book);
             }
         }
-        performOnFinishAction();
 
-        String message = getString(R.string.fragment_book_menu_erase_book_accepted);
-        Snackbar.make(((LibraryActivity)getActivity()).getPrimeView(), message, Snackbar.LENGTH_LONG).show();
+        if (eraseList.size() != 0) {
+            updateBookPrimeData(eraseList);
+            eraseBookTableData(eraseList);
+            eraseBookContentData(eraseList);
+        }
+
+        performOnFinishAction();
+        setSnackBarMessage(R.string.fragment_book_menu_erase_book_accepted);
     }
 
     public void doOnEraseBookCancelled() {
         performOnFinishAction();
-
-        String message = getString(R.string.fragment_book_menu_erase_book_cancelled);
-        Snackbar.make(((LibraryActivity)getActivity()).getPrimeView(), message, Snackbar.LENGTH_LONG).show();
+        setSnackBarMessage(R.string.fragment_book_menu_erase_book_cancelled);
     }
 
-    private void doOnEraseLocalBook(int position) {
-        BookPrimeData oldBook = currentBookPrimeList.get(position);
-        BookPrimeData newBook = BookPrimeFactory.create(oldBook.getBookId(),
-                                                        oldBook.getName(),
-                                                        oldBook.getAuthor(),
-                                                        oldBook.getImage(),
-                                                        oldBook.getFile(),
-                                                        BookPrimeStatus.Global);
+    private void updateBookPrimeData(final List<BookPrimeData> eraseList) {
+        for (BookPrimeData book : eraseList) {
+            for (int index = 0; index < currentBookPrimeList.size(); ++index) {
+                if (book.getBookId() == currentBookPrimeList.get(index).getBookId()) {
+                    BookPrimeData newBook = BookPrimeFactory.create(book.getBookId(),
+                                                                    book.getName(),
+                                                                    book.getAuthor(),
+                                                                    book.getImage(),
+                                                                    book.getFile(),
+                                                                    BookPrimeStatus.Global);
 
-        ContentResolver resolver = getActivity().getContentResolver();
+                    currentBookPrimeList.set(index, newBook);
+                    BookPrimeMapper.update(getActivity().getContentResolver(), newBook);
+                }
+            }
+        }
+    }
 
-        currentBookPrimeList.set(position, newBook);
-        BookPrimeMapper.update(resolver, newBook);
+    private void eraseBookTableData(final List<BookPrimeData> eraseList) {
+        final ContentResolver resolver = getActivity().getContentResolver();
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                BookTableLoader loader = new BookTableLoader(getContext());
+                loader.setListener(new OnStorageListener() {
+                    @Override
+                    public void onEvent(final List list) {
+                        getLoaderManager().destroyLoader(BookTableContract.LOADER_IDENTIFIER);
+                        new Handler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                List<BookTableData> dataList = (List<BookTableData>) list;
+                                for (BookPrimeData book : eraseList) {
+                                    for (BookTableData data : dataList) {
+                                        if (data.getBookId() == book.getBookId()) {
+                                            BookTableMapper.delete(resolver, data);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+
+                getLoaderManager().initLoader(BookTableContract.LOADER_IDENTIFIER, null, loader);
+            }
+        });
+    }
+
+    private void eraseBookContentData(final List<BookPrimeData> eraseList) {
+        final ContentResolver resolver = getActivity().getContentResolver();
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                BookContentLoader loader = new BookContentLoader(getContext());
+                loader.setListener(new OnStorageListener() {
+                    @Override
+                    public void onEvent(final List list) {
+                        getLoaderManager().destroyLoader(BookContentContract.LOADER_IDENTIFIER);
+                        new Handler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                List<BookContentData> dataList = (List<BookContentData>) list;
+                                for (BookPrimeData book : eraseList) {
+                                    for (BookContentData data : dataList) {
+                                        if (data.getBookId() == book.getBookId()) {
+                                            BookContentMapper.delete(resolver, data);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+
+                getLoaderManager().initLoader(BookContentContract.LOADER_IDENTIFIER, null, loader);
+            }
+        });
     }
 
     private void setRecyclerViewLayout(View view) {

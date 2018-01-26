@@ -3,10 +3,10 @@ package pe.ironbit.android.capstone.model.BookContent;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 
 import java.util.ArrayList;
 
