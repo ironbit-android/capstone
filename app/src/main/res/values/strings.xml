@@ -34,6 +34,17 @@
     <!-- Message System -->
     <string name="notify_internet_not_working">Internet Connection Problems</string>
 
+    <!-- Fragment Book Menu -->
+    <string name="fragment_book_menu_erase_book_message">Are you sure to delete locally?</string>
+
+    <string name="fragment_book_menu_erase_book_accepted">Book(s) deleted</string>
+
+    <string name="fragment_book_menu_erase_book_cancelled">Book(s) cannot be deleted</string>
+
+    <string name="fragment_book_menu_download_book_accepted">Book downloaded</string>
+
+    <string name="fragment_book_menu_download_book_cancelled">Book cannot be downloaded</string>
+
     <!-- Manager Label Fragment -->
     <string name="manager_label_title">Manager Label</string>
 

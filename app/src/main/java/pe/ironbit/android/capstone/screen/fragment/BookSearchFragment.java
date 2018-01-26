@@ -31,12 +31,19 @@ import pe.ironbit.android.capstone.model.BookPrime.BookPrimeFactory;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
 import pe.ironbit.android.capstone.screen.activity.LibraryActivity;
 import pe.ironbit.android.capstone.tools.index.Container;
+import pe.ironbit.android.capstone.util.Collection;
 import pe.ironbit.android.capstone.util.DeviceMetaData;
 import pe.ironbit.android.capstone.view.bookmenu.BookMenuAdapter;
 import pe.ironbit.android.capstone.view.bookmenu.BookMenuListener;
 
 public class BookSearchFragment extends BaseFragment {
     private static final int ONE_SECOND = 1000;
+
+    private static final float ALPHA_DEFAULT = 1.0f;
+
+    private static final int DOWNLOAD_ACTIVE = 1;
+
+    private static final int DOWNLOAD_INACTIVE = 0;
 
     private static final String BOOK_NUMBER = "BOOK_NUMBER";
 
@@ -175,7 +182,13 @@ public class BookSearchFragment extends BaseFragment {
 
     @Override
     public boolean doOnBackPressed() {
-        return !isHidden();
+        if (!isHidden()) {
+            clearQuery();
+            currentBookList.clear();
+            updateView();
+            return true;
+        }
+        return super.doOnBackPressed();
     }
 
     private void searchBookClear() {
@@ -183,7 +196,9 @@ public class BookSearchFragment extends BaseFragment {
     }
 
     private void searchBookAction() {
-        adapter.update(new ArrayList<BookPrimeData>());
+        currentBookList.clear();
+        updateView();
+
         progressBarView.setVisibility(View.VISIBLE);
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -207,7 +222,7 @@ public class BookSearchFragment extends BaseFragment {
                     }
                 }
 
-                adapter.update(currentBookList);
+                updateView();
             }
         }, ONE_SECOND);
     }
@@ -246,7 +261,9 @@ public class BookSearchFragment extends BaseFragment {
     }
 
     private void updateView() {
-        adapter.update(currentBookList);
+        List<Float> alphaList = Collection.initialize(currentBookList.size(), ALPHA_DEFAULT);
+        List<Integer> downloadList = Collection.initialize(currentBookList.size(), DOWNLOAD_INACTIVE);
+        adapter.updateList(currentBookList, alphaList, downloadList);
     }
 
     private void createInvertedIndex() {

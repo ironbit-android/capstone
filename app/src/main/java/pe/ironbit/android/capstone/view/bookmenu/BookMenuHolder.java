@@ -29,6 +29,12 @@ public class BookMenuHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.recyclerview_book_menu_book_icon)
     ImageView bookIcon;
 
+    @BindView(R.id.recyclerview_book_menu_cancel_download)
+    View cancelDownload;
+
+    @BindView(R.id.recyclerview_book_menu_progressbar_download)
+    View progressBarDownload;
+
     @BindView(R.id.recyclerview_book_menu_cardview)
     CardView cardView;
 
@@ -51,9 +57,26 @@ public class BookMenuHolder extends RecyclerView.ViewHolder {
                 return true;
             }
         });
+
+        cancelDownload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.update(position, BookMenuListener.ClickType.Cancel);
+            }
+        });
     }
 
-    public void bind(StorageService service, int position, BookPrimeData book, float alpha) {
+    public void bind(StorageService service, int position, BookPrimeData book, float alpha, boolean download) {
+        if (!download) {
+            bookImage.setVisibility(View.VISIBLE);
+            cancelDownload.setVisibility(View.GONE);
+            progressBarDownload.setVisibility(View.GONE);
+        } else {
+            bookImage.setVisibility(View.INVISIBLE);
+            cancelDownload.setVisibility(View.VISIBLE);
+            progressBarDownload.setVisibility(View.VISIBLE);
+        }
+
         this.position = position;
 
         bookName.setText(book.getName());
@@ -66,6 +89,8 @@ public class BookMenuHolder extends RecyclerView.ViewHolder {
 
         if (book.getStatus() != BookPrimeStatus.Global) {
             bookIcon.setVisibility(View.GONE);
+        } else {
+            bookIcon.setVisibility(View.VISIBLE);
         }
 
         cardView.setAlpha(alpha);

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Collection {
+    public static final int NOT_FOUND = -1;
+
     private Collection() {
     }
 
@@ -56,5 +58,14 @@ public class Collection {
         }
 
         return list;
+    }
+
+    public static <Type> int find(List<Type> list, Type object) {
+        for (int index = 0; index < list.size(); ++index) {
+            if (list.get(index).equals(object)) {
+                return index;
+            }
+        }
+        return NOT_FOUND;
     }
 }

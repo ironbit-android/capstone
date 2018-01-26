@@ -12,24 +12,26 @@ import java.util.List;
 import pe.ironbit.android.capstone.R;
 import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
-import pe.ironbit.android.capstone.util.Collection;
 
 public class BookMenuAdapter extends RecyclerView.Adapter<BookMenuHolder> {
-    private static final float ALPHA_DEFAULT = 1.0f;
+    private static final int DOWNLOAD_ACTIVE = 1;
 
     private BookMenuListener listener;
 
     private StorageService service;
 
-    private List<Float> alphaList;
-
     private List<BookPrimeData> bookList;
+
+    private List<Integer> downloadList;
+
+    private List<Float> alphaList;
 
     public BookMenuAdapter(BookMenuListener listener, StorageService service) {
         this.listener = listener;
         this.service = service;
         bookList = new ArrayList<>();
         alphaList = new ArrayList<>();
+        downloadList = new ArrayList<>();
     }
 
     @Override
@@ -48,7 +50,8 @@ public class BookMenuAdapter extends RecyclerView.Adapter<BookMenuHolder> {
     public void onBindViewHolder(BookMenuHolder holder, int position) {
         float alpha = alphaList.get(position);
         BookPrimeData book = bookList.get(position);
-        holder.bind(service, position, book, alpha);
+        boolean download = downloadList.get(position) == DOWNLOAD_ACTIVE;
+        holder.bind(service, position, book, alpha, download);
     }
 
     @Override
@@ -56,28 +59,17 @@ public class BookMenuAdapter extends RecyclerView.Adapter<BookMenuHolder> {
         return bookList.size();
     }
 
-    public void update(List<BookPrimeData> bookList) {
-        alphaList = Collection.initialize(bookList.size(), ALPHA_DEFAULT);
-        this.bookList = bookList;
-        notifyDataSetChanged();
-    }
-
-    public void update(List<BookPrimeData> bookList, List<Float> alphaList) {
-        if ((bookList == null) || (alphaList == null)) {
-            return;
-        }
-
+    public void updateList(List<BookPrimeData> bookList, List<Float> alphaList, List<Integer> downloadList) {
         this.bookList = bookList;
         this.alphaList = alphaList;
+        this.downloadList = downloadList;
         notifyDataSetChanged();
     }
 
-    public void setAlpha(int index, float alpha) {
-        if (index >= alphaList.size()) {
-            return;
-        }
-
-        alphaList.set(index, alpha);
-        notifyDataSetChanged();
+    public void updateItem(int position, BookPrimeData book, float alpha, int download) {
+        bookList.set(position, book);
+        alphaList.set(position, alpha);
+        downloadList.set(position, download);
+        notifyItemChanged(position);
     }
 }

@@ -258,6 +258,14 @@ public class LibraryActivity extends AppCompatActivity {
         return primeView;
     }
 
+    public void setSnackBarMessage(int resource) {
+        Snackbar.make(primeView, resource, Snackbar.LENGTH_LONG).show();
+    }
+
+    public void setSnackBarMessage(String message) {
+        Snackbar.make(primeView, message, Snackbar.LENGTH_LONG).show();
+    }
+
     public String getQuery() {
         return bookSearchView.getText().toString();
     }

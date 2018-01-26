@@ -17,7 +17,9 @@
             android:authorities="pe.ironbit.android.capstone"
             android:exported="false" />
 
-        <activity android:name=".screen.activity.LibraryActivity">
+        <activity
+            android:name=".screen.activity.LibraryActivity"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
