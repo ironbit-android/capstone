@@ -36,6 +36,9 @@
 
     <dimen name="book_menu_book_icon_margin">12dp</dimen>
 
+    <!-- Book Download -->
+    <integer name="book_download_time_seconds">2000</integer>
+
     <!-- Book Search Functionality -->
     <dimen name="book_search_input_width">210dp</dimen>
 

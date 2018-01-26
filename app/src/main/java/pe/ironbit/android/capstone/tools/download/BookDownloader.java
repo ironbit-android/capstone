@@ -5,6 +5,7 @@ import android.os.Handler;
 
 import java.util.List;
 
+import pe.ironbit.android.capstone.R;
 import pe.ironbit.android.capstone.firebase.model.BookFormatDelegate;
 import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.generic.Action;
@@ -31,11 +32,14 @@ public class BookDownloader {
 
     private boolean isDownloadCancelled;
 
+    private int delay;
+
     public BookDownloader(Activity activity, int position) {
         this.position = position;
         this.activity = activity;
         isDownloadCancelled = false;
         service = new StorageService(activity.getApplicationContext());
+        delay = activity.getResources().getInteger(R.integer.book_download_time_seconds);
     }
 
     public void doOnDownloadFinished(Action<Integer> action) {
@@ -67,7 +71,7 @@ public class BookDownloader {
 
                 service.process(delegate);
             }
-        }, 2000);
+        }, delay);
     }
 
     public synchronized boolean downloadCancelState(Boolean value) {
