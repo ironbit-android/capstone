@@ -12,6 +12,10 @@ public class BookContentContract {
 
     public static final int BOOK_CONTENT_ITEM = 11;
 
+    public static final int BOOK_CONTENT_GROUP = 12;
+
+    public static final String PATH_BOOK_CONTENT_GROUP = "by_id";
+
     private BookContentContract() {
     }
 
@@ -25,6 +29,9 @@ public class BookContentContract {
 
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CapstoneStorageContract.CONTENT_AUTHORITY + "/" + PATH_TABLE;
+
+        public static final String CONTENT_GROUP_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CapstoneStorageContract.CONTENT_AUTHORITY + "/" + PATH_TABLE;
 
         public static final String TABLE_NAME = "book_content";
 

@@ -36,6 +36,12 @@ public class BookTableLoader implements LoaderManager.LoaderCallbacks<Cursor> {
         return this;
     }
 
+    public BookTableLoader load(int bookId) {
+        this.bookId = bookId;
+        this.section = BookTableEntry.NULL_INDEX;
+        return this;
+    }
+
     public BookTableLoader loadItem(int bookId, int section) {
         this.bookId = bookId;
         this.section = section;
@@ -46,9 +52,11 @@ public class BookTableLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         if (bookId == BookTableEntry.NULL_INDEX) {
             return BookTableMapper.query(context);
-        } else {
-            return BookTableMapper.query(context, bookId, section);
         }
+        if (section == BookTableEntry.NULL_INDEX) {
+            return BookTableMapper.query(context, bookId);
+        }
+        return BookTableMapper.query(context, bookId, section);
     }
 
     @Override

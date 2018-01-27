@@ -41,6 +41,10 @@ public class CapstoneStorageProvider extends ContentProvider {
                            BookContentContract.BOOK_CONTENT_ITEM);
 
         sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           BookContentContract.PATH_TABLE + "/" + BookContentContract.PATH_BOOK_CONTENT_GROUP + "/#",
+                           BookContentContract.BOOK_CONTENT_GROUP);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
                            BookPrimeContract.PATH_TABLE,
                            BookPrimeContract.BOOK_PRIME_LIST);
 
@@ -55,6 +59,10 @@ public class CapstoneStorageProvider extends ContentProvider {
         sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
                            BookTableContract.PATH_TABLE + "/#/#",
                            BookTableContract.BOOK_TABLE_ITEM);
+
+        sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
+                           BookTableContract.PATH_TABLE + "/" + BookTableContract.PATH_BOOK_TABLE_GROUP + "/#",
+                           BookTableContract.BOOK_TABLE_GROUP);
 
         sUriMatcher.addURI(CapstoneStorageContract.CONTENT_AUTHORITY,
                            LabelBookContract.PATH_TABLE,
@@ -96,6 +104,8 @@ public class CapstoneStorageProvider extends ContentProvider {
                 return BookContentEntry.CONTENT_ITEM_TYPE;
             case BookContentContract.BOOK_CONTENT_LIST:
                 return BookContentEntry.CONTENT_LIST_TYPE;
+            case BookContentContract.BOOK_CONTENT_GROUP:
+                return BookContentEntry.CONTENT_GROUP_TYPE;
 
             case BookPrimeContract.BOOK_PRIME_ITEM:
                 return BookPrimeEntry.CONTENT_ITEM_TYPE;
@@ -106,6 +116,8 @@ public class CapstoneStorageProvider extends ContentProvider {
                 return BookTableEntry.CONTENT_ITEM_TYPE;
             case BookTableContract.BOOK_TABLE_LIST:
                 return BookTableEntry.CONTENT_LIST_TYPE;
+            case BookTableContract.BOOK_TABLE_GROUP:
+                return BookTableEntry.CONTENT_GROUP_TYPE;
 
             case LabelBookContract.LABEL_BOOK_ITEM:
                 return LabelBookEntry.CONTENT_ITEM_TYPE;
@@ -139,6 +151,11 @@ public class CapstoneStorageProvider extends ContentProvider {
             case BookContentContract.BOOK_CONTENT_LIST:
                 tableName = BookContentEntry.TABLE_NAME;
                 break;
+            case BookContentContract.BOOK_CONTENT_GROUP:
+                selection = BookContentEntry.BOOK_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
+                tableName = BookContentEntry.TABLE_NAME;
+                break;
 
             case BookPrimeContract.BOOK_PRIME_ITEM:
                 selection = BookPrimeEntry.BOOK_ID + "=?";
@@ -152,6 +169,11 @@ public class CapstoneStorageProvider extends ContentProvider {
                 array = uri.getPath().split("/");
                 selectionArgs = new String[]{array[array.length - 2], array[array.length - 1]};
             case BookTableContract.BOOK_TABLE_LIST:
+                tableName = BookTableEntry.TABLE_NAME;
+                break;
+            case BookTableContract.BOOK_TABLE_GROUP:
+                selection = BookTableEntry.BOOK_ID + "=?";
+                selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri)) };
                 tableName = BookTableEntry.TABLE_NAME;
                 break;
 

@@ -23,6 +23,15 @@
 
     <item name="general_long_click_alpha" format="float" type="dimen">0.6</item>
 
+    <dimen name="general_other_margin">16dp</dimen>
+
+    <dimen name="general_bottom_margin">48dp</dimen>
+
+    <!-- Reader Fragment -->
+    <dimen name="activity_reader_toolbar_height">90dp</dimen>
+
+    <dimen name="activity_reader_title_margin_right">30dp</dimen>
+
     <!-- Book Menu -->
     <dimen name="book_menu_card_height">200dp</dimen>
 

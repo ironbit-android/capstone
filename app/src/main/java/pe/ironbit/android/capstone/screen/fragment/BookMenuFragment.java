@@ -1,6 +1,7 @@
 package pe.ironbit.android.capstone.screen.fragment;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,6 +37,7 @@ import pe.ironbit.android.capstone.model.BookTable.BookTableData;
 import pe.ironbit.android.capstone.model.BookTable.BookTableMapper;
 import pe.ironbit.android.capstone.model.LabelBook.LabelBookData;
 import pe.ironbit.android.capstone.screen.activity.LibraryActivity;
+import pe.ironbit.android.capstone.screen.activity.ReaderActivity;
 import pe.ironbit.android.capstone.screen.dialog.AddBookIntoLabelDialog;
 import pe.ironbit.android.capstone.screen.dialog.DeleteBookDialog;
 import pe.ironbit.android.capstone.storage.contract.BookContentContract;
@@ -345,6 +347,11 @@ public class BookMenuFragment extends BaseFragment {
             doOnClickDownloadBook(position);
             return;
         }
+
+        BookPrimeParcelable parcelable = BookPrimeFactory.create(currentBookPrimeList.get(position));
+        Intent intent = new Intent(getContext(), ReaderActivity.class);
+        intent.putExtra(ReaderActivity.BOOK_PRIME_DATA_KEY, parcelable);
+        startActivity(intent);
     }
 
     private void doOnLongClickInBookItem(int position) {

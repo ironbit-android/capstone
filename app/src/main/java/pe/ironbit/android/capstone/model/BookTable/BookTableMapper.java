@@ -10,6 +10,7 @@ import android.support.v4.content.Loader;
 
 import java.util.ArrayList;
 
+import pe.ironbit.android.capstone.storage.contract.BookTableContract;
 import pe.ironbit.android.capstone.storage.contract.BookTableContract.BookTableEntry;
 
 public class BookTableMapper {
@@ -24,6 +25,14 @@ public class BookTableMapper {
 
     public static Loader<Cursor> query(Context context) {
         return new CursorLoader(context, BookTableEntry.CONTENT_URI, projection, null, null, null);
+    }
+
+    public static Loader<Cursor> query(Context context, int bookId) {
+        Uri uri = BookTableEntry.CONTENT_URI.buildUpon().appendPath(BookTableContract.PATH_BOOK_TABLE_GROUP)
+                                                        .appendPath(String.valueOf(bookId))
+                                                        .build();
+
+        return new CursorLoader(context, uri, projection, null, null , null);
     }
 
     public static Loader<Cursor> query(Context context, int bookId, int section) {
