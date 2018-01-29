@@ -96,4 +96,8 @@
     <string name="dialog_accept">Accept</string>
 
     <string name="dialog_cancel">Cancel</string>
+
+    <!-- Reader Activity -->
+    <string name="table_of_content">Table Of Content</string>
+
 </resources>

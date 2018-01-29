@@ -8,11 +8,12 @@
     android:layout_height="match_parent">
 
     <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/activity_reader_prime_screen"
+        android:id="@+id/activity_reader_coordinator_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <android.support.design.widget.AppBarLayout
+            android:id="@+id/activity_reader_appbar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
@@ -89,7 +90,7 @@
             <WebView
                 android:id="@+id/activity_reader_webview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content" />
 
         </android.support.v4.widget.NestedScrollView>
 
@@ -104,20 +105,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/general_margin_horizontal_between_items"
+                android:onClick="onClickNavigatorLeftIcon"
                 android:src="@mipmap/ic_chevron_left_black_36dp"/>
 
             <ImageView
+                android:id="@+id/activity_reader_navigator_right_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/general_margin_horizontal_between_items"
                 android:layout_toRightOf="@id/activity_reader_navigator_left_icon"
+                android:onClick="onClickNavigatorRightIcon"
                 android:src="@mipmap/ic_chevron_right_black_36dp"/>
 
             <ImageView
+                android:id="@+id/activity_reader_navigator_menu_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/general_margin_horizontal_between_items"
                 android:layout_alignParentRight="true"
+                android:onClick="onClickNavigatorMenuIcon"
                 android:src="@mipmap/ic_menu_black_36dp"/>
 
         </RelativeLayout>

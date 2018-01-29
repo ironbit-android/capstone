@@ -54,7 +54,7 @@ public class BookContentLoader implements LoaderManager.LoaderCallbacks<Cursor> 
             return BookContentMapper.query(context);
         }
         if (section == BookContentEntry.NULL_INDEX) {
-            return BookContentMapper.query(context);
+            return BookContentMapper.query(context, bookId);
         }
         return BookContentMapper.query(context, bookId, section);
     }

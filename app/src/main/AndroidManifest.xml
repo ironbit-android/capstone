@@ -26,7 +26,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".screen.activity.ReaderActivity"/>
+            android:name=".screen.activity.ReaderActivity"
+            android:configChanges="orientation|screenSize" />
     </application>
 
 </manifest>

@@ -1,0 +1,38 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="pe.ironbit.android.capstone.screen.fragment.ReaderMainMenuFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="@dimen/general_other_margin">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_margin="@dimen/general_other_margin"
+            android:onClick="onClickLibraryOption"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-regular"
+            android:textSize="@dimen/general_subheading_text_size"
+            android:text="@string/library"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_margin="@dimen/general_other_margin"
+            android:onClick="onClickTableOfContentOption"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-regular"
+            android:textSize="@dimen/general_subheading_text_size"
+            android:text="@string/table_of_content"/>
+
+    </LinearLayout>
+
+</FrameLayout>
