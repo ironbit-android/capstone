@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/general_margin_in_borders">
+
+    <TextView
+        android:id="@+id/recyclerview_table_contents_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_margin="@dimen/general_margin_vertical_between_items"
+        android:textStyle="normal"
+        android:fontFamily="sans-serif-regular"
+        android:textSize="@dimen/general_body_text_size"
+        tools:text="Sample"/>
+
+</LinearLayout>

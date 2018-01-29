@@ -1,0 +1,25 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="pe.ironbit.android.capstone.screen.fragment.TableContentFragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="@dimen/general_margin_vertical_between_items"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-regular"
+        android:textSize="@dimen/general_subheading_text_size"
+        android:text="@string/table_of_contents"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fragment_table_content_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/book_menu_recyclerview_margin" />
+
+</LinearLayout>

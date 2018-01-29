@@ -29,6 +29,7 @@ import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
 import pe.ironbit.android.capstone.model.BookTable.BookTableData;
 import pe.ironbit.android.capstone.screen.fragment.ReaderMainMenuFragment;
+import pe.ironbit.android.capstone.screen.fragment.TableContentFragment;
 import pe.ironbit.android.capstone.storage.contract.BookContentContract;
 import pe.ironbit.android.capstone.storage.contract.BookTableContract;
 import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
@@ -148,17 +149,15 @@ public class ReaderActivity extends AppCompatActivity {
         if (chapter == data.getFirstChapter()) {
             return;
         }
-        if (--chapter == data.getFirstChapter()) {
-            navigatorLeftIconView.setAlpha(ALPHA_DISABLE);
-        }
+
+        chapter--;
         data.setCurrentChapter(chapter);
-        navigatorRightIconView.setAlpha(ALPHA_ENABLE);
+        shared.setCurrentChapter(chapter);
+        shared.save();
 
         loadViewInitSettings();
         loadBookContentInformation();
-
-        shared.setCurrentChapter(chapter);
-        shared.save();
+        updateNavigatorMenu(chapter);
     }
 
     public void onClickNavigatorRightIcon(View view) {
@@ -166,17 +165,15 @@ public class ReaderActivity extends AppCompatActivity {
         if (chapter == data.getLastChapter()) {
             return;
         }
-        if (++chapter == data.getLastChapter()) {
-            navigatorRightIconView.setAlpha(ALPHA_DISABLE);
-        }
+
+        chapter++;
         data.setCurrentChapter(chapter);
-        navigatorLeftIconView.setAlpha(ALPHA_ENABLE);
+        shared.setCurrentChapter(chapter);
+        shared.save();
 
         loadViewInitSettings();
         loadBookContentInformation();
-
-        shared.setCurrentChapter(chapter);
-        shared.save();
+        updateNavigatorMenu(chapter);
     }
 
     public void onClickNavigatorMenuIcon(View view) {
@@ -186,10 +183,38 @@ public class ReaderActivity extends AppCompatActivity {
         }
     }
 
+    public void changeChapter(int chapter) {
+        if (chapter != data.getCurrentChapter()) {
+            data.setCurrentChapter(chapter);
+            shared.setCurrentChapter(chapter);
+            shared.save();
+
+            loadBookContentInformation();
+
+            updateNavigatorMenu(chapter);
+        }
+        if (isDevicePhone()) {
+            drawerLayout.closeDrawers();
+        }
+    }
+
     private void configureScreen() {
         BookPrimeData book = data.getCurrentBook();
         bookNameView.setText(book.getName());
         bookAuthorView.setText(book.getAuthor());
+    }
+
+    private void updateNavigatorMenu(int chapter) {
+        if (chapter == data.getFirstChapter()) {
+            navigatorLeftIconView.setAlpha(ALPHA_DISABLE);
+            navigatorRightIconView.setAlpha(ALPHA_ENABLE);
+        } else if (chapter == data.getLastChapter()) {
+            navigatorLeftIconView.setAlpha(ALPHA_ENABLE);
+            navigatorRightIconView.setAlpha(ALPHA_DISABLE);
+        } else {
+            navigatorLeftIconView.setAlpha(ALPHA_ENABLE);
+            navigatorRightIconView.setAlpha(ALPHA_ENABLE);
+        }
     }
 
     private void loadMainMenuFragment() {
@@ -204,9 +229,17 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     private void loadTableOfContentFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment fragment = manager.findFragmentByTag(TableContentFragment.class.getSimpleName());
+        if ((fragment == null) || fragment.isHidden()) {
+            fragment = TableContentFragment.newInstance(bookTableList.subList(INIT_CHAPTER, bookTableList.size()));
+            manager.beginTransaction()
+                   .replace(R.id.layout_reader_main_menu, fragment, TableContentFragment.class.getSimpleName())
+                   .commit();
+        }
     }
 
-    private void loadBookTableInformation(int bookId) {
+    private void loadBookTableInformation(final int bookId) {
         BookTableLoader loader = new BookTableLoader(getApplicationContext());
         loader.load(bookId);
         loader.setListener(new OnStorageListener() {
@@ -219,6 +252,7 @@ public class ReaderActivity extends AppCompatActivity {
                 }
 
                 bookTableList = (List<BookTableData>)list;
+
                 data.setFirstChapter(INIT_CHAPTER);
                 data.setLastChapter(bookTableList.size() - 1);
             }
@@ -241,6 +275,7 @@ public class ReaderActivity extends AppCompatActivity {
 
                 bookContentList = (List<BookContentData>)list;
                 loadBookContentInformation();
+                updateNavigatorMenu(data.getCurrentChapter());
             }
         });
 

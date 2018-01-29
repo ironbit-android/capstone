@@ -31,7 +31,7 @@
             android:textStyle="bold"
             android:fontFamily="sans-serif-regular"
             android:textSize="@dimen/general_subheading_text_size"
-            android:text="@string/table_of_content"/>
+            android:text="@string/table_of_contents"/>
 
     </LinearLayout>
 
