@@ -119,15 +119,21 @@ public class ManagerLabelFragment extends BaseFragment {
             }
         }
 
+        String oldLabelName = data.getLabelName();
         View view = ((LibraryActivity)getActivity()).getPrimeView();
         if (valid) {
             LabelPrimeData newData = LabelPrimeFactory.create(data.getLabelId(), labelName);
             adapter.update(index, newData);
             LabelPrimeMapper.update(getActivity().getContentResolver(), newData);
+            verifyCurrentTitle(labelName, oldLabelName);
             Snackbar.make(view, getString(R.string.manager_label_edit_label_accept_message), Snackbar.LENGTH_LONG).show();
         } else {
             Snackbar.make(view, getString(R.string.manager_label_edit_label_problem_message), Snackbar.LENGTH_LONG).show();
         }
+    }
+
+    private void verifyCurrentTitle(String newLabelName, String oldLabelName) {
+        ((LibraryActivity)getActivity()).changeTitle(newLabelName, oldLabelName);
     }
 
     private void onEraseLabelAction(final Integer index) {

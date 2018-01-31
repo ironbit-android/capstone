@@ -293,6 +293,16 @@ public class LibraryActivity extends AppCompatActivity {
         }
     }
 
+    public void changeTitle(String newName, String oldName) {
+        if (activityMode != ActivityMode.ManagerLabel) {
+            return;
+        }
+
+        if (TextUtils.equals(previousTitle, oldName)) {
+            previousTitle = newName;
+        }
+    }
+
     public void setPreviousTitle() {
         currentTitle = previousTitle;
         titleView.setText(currentTitle);
@@ -503,6 +513,9 @@ public class LibraryActivity extends AppCompatActivity {
                   public void onEvent(List list) {
                       getLoaderManager().destroyLoader(BookPrimeContract.LOADER_IDENTIFIER);
 
+                      if (list == null) {
+                          return;
+                      }
                       if (list.size() == 0) {
                           if (isInternetWorking()) {
                               loadLibraryDataFromFirebase();
