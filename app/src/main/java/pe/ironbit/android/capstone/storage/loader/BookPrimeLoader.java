@@ -1,10 +1,10 @@
 package pe.ironbit.android.capstone.storage.loader;
 
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeMapper;
 import pe.ironbit.android.capstone.storage.contract.BookContentContract.BookContentEntry;

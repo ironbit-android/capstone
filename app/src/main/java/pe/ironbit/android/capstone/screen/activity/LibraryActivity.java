@@ -131,6 +131,7 @@ public class LibraryActivity extends AppCompatActivity {
 
         configureVariables(savedInstanceState);
 
+        loadBookData();
         loadMainMenuFragment();
         configActivityMode();
     }
@@ -187,7 +188,11 @@ public class LibraryActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doOnBackPressed()) {
-            setTitle(previousTitle);
+            if (activityMode == ActivityMode.BookSearch) {
+                setTitle(currentTitle);
+            } else {
+                setTitle(previousTitle);
+            }
             setActivityMode(ActivityMode.BookMenu);
             return;
         }
@@ -517,7 +522,7 @@ public class LibraryActivity extends AppCompatActivity {
                   }
               });
 
-        getLoaderManager().initLoader(BookPrimeContract.LOADER_IDENTIFIER, null, loader);
+        getSupportLoaderManager().initLoader(BookPrimeContract.LOADER_IDENTIFIER, null, loader);
     }
 
     private void loadLibraryDataFromFirebase() {
@@ -557,6 +562,19 @@ public class LibraryActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void loadBookData() {
+        BookPrimeLoader loader = new BookPrimeLoader(getApplicationContext());
+        loader.loadList();
+        loader.setListener(new OnStorageListener() {
+            @Override
+            public void onEvent(List list) {
+                bookPrimeDataList = list;
+            }
+        });
+
+        getSupportLoaderManager().initLoader(BookPrimeContract.LOADER_IDENTIFIER, null, loader);
     }
 
     private void showMessageInternetProblem() {

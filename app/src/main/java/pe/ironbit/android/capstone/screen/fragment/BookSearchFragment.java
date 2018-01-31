@@ -30,6 +30,9 @@ import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeFactory;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
 import pe.ironbit.android.capstone.screen.activity.LibraryActivity;
+import pe.ironbit.android.capstone.storage.contract.BookPrimeContract;
+import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
+import pe.ironbit.android.capstone.storage.loader.BookPrimeLoader;
 import pe.ironbit.android.capstone.tools.index.Container;
 import pe.ironbit.android.capstone.util.Collection;
 import pe.ironbit.android.capstone.util.DeviceMetaData;
@@ -170,6 +173,7 @@ public class BookSearchFragment extends BaseFragment {
     @Override
     public void doOnShowFragment() {
         setHasOptionsMenu(true);
+        loadBookData();
     }
 
     @Override
@@ -280,6 +284,19 @@ public class BookSearchFragment extends BaseFragment {
 
     private void clearQuery() {
         ((LibraryActivity)getActivity()).clearQuery();
+    }
+
+    private void loadBookData() {
+        BookPrimeLoader loader = new BookPrimeLoader(getContext());
+        loader.loadList();
+        loader.setListener(new OnStorageListener() {
+            @Override
+            public void onEvent(List list) {
+                completeBookList = list;
+            }
+        });
+
+        getLoaderManager().initLoader(BookPrimeContract.LOADER_IDENTIFIER, null, loader);
     }
 
     private static void storeData(Bundle bundle, String key, List<BookPrimeData> list) {

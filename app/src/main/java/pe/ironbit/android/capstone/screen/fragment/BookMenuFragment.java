@@ -42,9 +42,11 @@ import pe.ironbit.android.capstone.screen.activity.ReaderActivity;
 import pe.ironbit.android.capstone.screen.dialog.AddBookIntoLabelDialog;
 import pe.ironbit.android.capstone.screen.dialog.DeleteBookDialog;
 import pe.ironbit.android.capstone.storage.contract.BookContentContract;
+import pe.ironbit.android.capstone.storage.contract.BookPrimeContract;
 import pe.ironbit.android.capstone.storage.contract.BookTableContract;
 import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
 import pe.ironbit.android.capstone.storage.loader.BookContentLoader;
+import pe.ironbit.android.capstone.storage.loader.BookPrimeLoader;
 import pe.ironbit.android.capstone.storage.loader.BookTableLoader;
 import pe.ironbit.android.capstone.tools.download.BookDownloader;
 import pe.ironbit.android.capstone.util.Collection;
@@ -96,6 +98,13 @@ public class BookMenuFragment extends BaseFragment {
     private boolean isSelectOptionActive = false;
 
     private BookMenuAdapter adapter;
+
+    private enum MetaLabelData {
+        Other,
+        Local
+    }
+
+    private MetaLabelData currentLabel;
 
     private class BookDownloaderHelper {
         public BookDownloaderHelper() {
@@ -177,6 +186,7 @@ public class BookMenuFragment extends BaseFragment {
             alphaList = Collection.convertFloatCollection(bundle.getFloatArray(ALPHA_SELECTION_LIST));
             downloadList = bundle.getIntegerArrayList(DOWNLOAD_LIST);
         } else {
+            currentLabel = MetaLabelData.Other;
             isSelectOptionActive = false;
             if (bookSelectionList == null) {
                 bookSelectionList = new ArrayList<>();
@@ -234,6 +244,7 @@ public class BookMenuFragment extends BaseFragment {
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
+        loadBookData();
     }
 
     @Override
@@ -283,23 +294,30 @@ public class BookMenuFragment extends BaseFragment {
     }
 
     public void updateModeGlobal() {
+        currentLabel = MetaLabelData.Other;
         currentBookPrimeList = completeBookPrimeList;
+        alphaList = Collection.initialize(currentBookPrimeList.size(), ALPHA_DEFAULT);
+        downloadList = Collection.initialize(currentBookPrimeList.size(), DOWNLOAD_INACTIVE);
         doOnCloseSelectionMode();
         updateViewList();
     }
 
     public void updateModelLocal() {
+        currentLabel = MetaLabelData.Local;
         currentBookPrimeList = new ArrayList<>();
         for (BookPrimeData book : completeBookPrimeList) {
             if (book.getStatus() == BookPrimeStatus.Local) {
                 currentBookPrimeList.add(book);
             }
         }
+        alphaList = Collection.initialize(currentBookPrimeList.size(), ALPHA_DEFAULT);
+        downloadList = Collection.initialize(currentBookPrimeList.size(), DOWNLOAD_INACTIVE);
         doOnCloseSelectionMode();
         updateViewList();
     }
 
     public void updateModelLabel(List<LabelBookData> labelBookList) {
+        currentLabel = MetaLabelData.Other;
         currentBookPrimeList = new ArrayList<>();
         for (LabelBookData labelBook : labelBookList) {
             for (BookPrimeData bookPrime : completeBookPrimeList) {
@@ -308,6 +326,8 @@ public class BookMenuFragment extends BaseFragment {
                 }
             }
         }
+        alphaList = Collection.initialize(currentBookPrimeList.size(), ALPHA_DEFAULT);
+        downloadList = Collection.initialize(currentBookPrimeList.size(), DOWNLOAD_INACTIVE);
         doOnCloseSelectionMode();
         updateViewList();
     }
@@ -408,6 +428,11 @@ public class BookMenuFragment extends BaseFragment {
                                                                 BookPrimeStatus.Local);
 
                 currentBookPrimeList.set(position, newBook);
+                for (int i = 0; i < completeBookPrimeList.size(); ++i) {
+                    if (completeBookPrimeList.get(i).getBookId() == newBook.getBookId()) {
+                        completeBookPrimeList.set(i, newBook);
+                    }
+                }
                 BookPrimeMapper.update(getActivity().getContentResolver(), newBook);
 
                 doOnFinishDownloadBook(position);
@@ -484,7 +509,18 @@ public class BookMenuFragment extends BaseFragment {
                                                                     book.getFile(),
                                                                     BookPrimeStatus.Global);
 
-                    currentBookPrimeList.set(index, newBook);
+                    if (currentLabel == MetaLabelData.Local) {
+                        currentBookPrimeList.remove(index);
+                        alphaList.remove(index);
+                        downloadList.remove(index);
+                    } else {
+                        currentBookPrimeList.set(index, newBook);
+                    }
+                    for (int i = 0; i < completeBookPrimeList.size(); ++i) {
+                        if (completeBookPrimeList.get(i).getBookId() == newBook.getBookId()) {
+                            completeBookPrimeList.set(i, newBook);
+                        }
+                    }
                     BookPrimeMapper.update(getActivity().getContentResolver(), newBook);
                 }
             }
@@ -571,6 +607,19 @@ public class BookMenuFragment extends BaseFragment {
 
         RecyclerView.LayoutManager manager = new GridLayoutManager(view.getContext(), size, GridLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(manager);
+    }
+
+    private void loadBookData() {
+        BookPrimeLoader loader = new BookPrimeLoader(getContext());
+        loader.loadList();
+        loader.setListener(new OnStorageListener() {
+            @Override
+            public void onEvent(List list) {
+                completeBookPrimeList = list;
+            }
+        });
+
+        getLoaderManager().initLoader(BookPrimeContract.LOADER_IDENTIFIER, null, loader);
     }
 
     public void updateViewList() {
