@@ -24,6 +24,7 @@ import pe.ironbit.android.capstone.R;
 import pe.ironbit.android.capstone.data.parcel.activity.reader.ReaderActivityData;
 import pe.ironbit.android.capstone.data.parcel.activity.reader.ReaderActivityParcel;
 import pe.ironbit.android.capstone.data.shared.BookSharedData;
+import pe.ironbit.android.capstone.firebase.analytics.AnalyticsService;
 import pe.ironbit.android.capstone.model.BookContent.BookContentData;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
@@ -53,6 +54,8 @@ public class ReaderActivity extends AppCompatActivity {
     private List<BookTableData> bookTableList;
 
     private List<BookContentData> bookContentList;
+
+    private AnalyticsService analyticsService;
 
     @Nullable
     @BindView(R.id.activity_reader_drawerlayout)
@@ -93,6 +96,8 @@ public class ReaderActivity extends AppCompatActivity {
         loadMainMenuFragment();
         loadBookTableInformation(data.getCurrentBook().getBookId());
         loadBookContentInformation(data.getCurrentBook().getBookId());
+
+        executeAnalyticsService();
     }
 
     @Override
@@ -158,6 +163,8 @@ public class ReaderActivity extends AppCompatActivity {
         loadViewInitSettings();
         loadBookContentInformation();
         updateNavigatorMenu(chapter);
+
+        executeAnalyticsService();
     }
 
     public void onClickNavigatorRightIcon(View view) {
@@ -174,6 +181,8 @@ public class ReaderActivity extends AppCompatActivity {
         loadViewInitSettings();
         loadBookContentInformation();
         updateNavigatorMenu(chapter);
+
+        executeAnalyticsService();
     }
 
     public void onClickNavigatorMenuIcon(View view) {
@@ -192,6 +201,8 @@ public class ReaderActivity extends AppCompatActivity {
             loadBookContentInformation();
 
             updateNavigatorMenu(chapter);
+
+            executeAnalyticsService();
         }
         if (isDevicePhone()) {
             drawerLayout.closeDrawers();
@@ -297,6 +308,16 @@ public class ReaderActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void executeAnalyticsService() {
+        if (analyticsService == null) {
+            analyticsService = new AnalyticsService(getApplicationContext());
+        }
+
+        analyticsService.setCurrentBook(data.getCurrentBook().getBookId())
+                        .setCurrentChapter(data.getCurrentChapter())
+                        .logEvent();
     }
 
     private void returnToLibraryActivity() {
