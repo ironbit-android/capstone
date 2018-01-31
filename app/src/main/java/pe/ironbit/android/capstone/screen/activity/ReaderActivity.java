@@ -27,14 +27,16 @@ import pe.ironbit.android.capstone.data.shared.BookSharedData;
 import pe.ironbit.android.capstone.firebase.analytics.AnalyticsService;
 import pe.ironbit.android.capstone.model.BookContent.BookContentData;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
-import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
+import pe.ironbit.android.capstone.model.BookPrime.BookPrimeFactory;
 import pe.ironbit.android.capstone.model.BookTable.BookTableData;
 import pe.ironbit.android.capstone.screen.fragment.ReaderMainMenuFragment;
 import pe.ironbit.android.capstone.screen.fragment.TableContentFragment;
 import pe.ironbit.android.capstone.storage.contract.BookContentContract;
+import pe.ironbit.android.capstone.storage.contract.BookPrimeContract;
 import pe.ironbit.android.capstone.storage.contract.BookTableContract;
 import pe.ironbit.android.capstone.storage.listener.OnStorageListener;
 import pe.ironbit.android.capstone.storage.loader.BookContentLoader;
+import pe.ironbit.android.capstone.storage.loader.BookPrimeLoader;
 import pe.ironbit.android.capstone.storage.loader.BookTableLoader;
 import pe.ironbit.android.capstone.util.DeviceMetaData;
 
@@ -56,6 +58,8 @@ public class ReaderActivity extends AppCompatActivity {
     private List<BookContentData> bookContentList;
 
     private AnalyticsService analyticsService;
+
+    private int configReady = 0;
 
     @Nullable
     @BindView(R.id.activity_reader_drawerlayout)
@@ -89,14 +93,9 @@ public class ReaderActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        configureVariables(bundle);
-        loadSavedInformation(bundle);
-        configureScreen();
-
+        configureVariables();
+        loadSavedInformation();
         loadMainMenuFragment();
-        loadBookTableInformation(data.getCurrentBook().getBookId());
-        loadBookContentInformation(data.getCurrentBook().getBookId());
-
         executeAnalyticsService();
     }
 
@@ -111,29 +110,28 @@ public class ReaderActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
     }
 
-    private void configureVariables(Bundle bundle) {
-        if (bundle == null) {
-            data = new ReaderActivityData();
-            data.setCurrentChapter(INIT_CHAPTER);
-            data.setCurrentBook((BookPrimeParcelable)getIntent().getParcelableExtra(BOOK_PRIME_DATA_KEY));
-        } else {
-            data = ((ReaderActivityParcel)bundle.getParcelable(ReaderActivityParcel.READER_ACTIVITY_KEY)).getData();
-        }
+    private void configureVariables() {
+        data = new ReaderActivityData();
+        data.setCurrentChapter(INIT_CHAPTER);
+        data.setCurrentBook(BookPrimeFactory.create(getIntent().getParcelableExtra(BOOK_PRIME_DATA_KEY)));
     }
 
-    private void loadSavedInformation(Bundle bundle) {
+    private void loadSavedInformation() {
         shared = new BookSharedData(getPreferences(Context.MODE_PRIVATE));
         shared.load();
 
-        if (bundle == null) {
-            BookPrimeData book = data.getCurrentBook();
-            if (book.getBookId() == shared.getBookId()) {
-                data.setCurrentChapter(shared.getCurrentChapter());
-            } else {
-                shared.setBookId(book.getBookId());
-                shared.setCurrentChapter(data.getCurrentChapter());
-                shared.save();
-            }
+        BookPrimeData book = data.getCurrentBook();
+        if (book.getBookId() == BookPrimeData.NULL_INDEX) {
+            loadBookInformation(shared.getBookId());
+            data.setCurrentChapter(shared.getCurrentChapter());
+        } else if (book.getBookId() == shared.getBookId()) {
+            loadBookInformation(book.getBookId());
+            data.setCurrentChapter(shared.getCurrentChapter());
+        } else {
+            loadBookInformation(book.getBookId());
+            shared.setBookId(book.getBookId());
+            shared.setCurrentChapter(data.getCurrentChapter());
+            shared.save();
         }
     }
 
@@ -250,6 +248,31 @@ public class ReaderActivity extends AppCompatActivity {
         }
     }
 
+    private void loadBookInformation(final int bookId) {
+        loadBookDataInformation(bookId);
+        loadBookTableInformation(bookId);
+        loadBookContentInformation(bookId);
+    }
+
+    private void loadBookDataInformation(final int bookId) {
+        BookPrimeLoader loader = new BookPrimeLoader(getApplicationContext());
+        loader.loadItem(bookId);
+        loader.setListener(new OnStorageListener() {
+            @Override
+            public void onEvent(List list) {
+                getSupportLoaderManager().destroyLoader(BookPrimeContract.LOADER_IDENTIFIER);
+
+                if (list == null) {
+                    return;
+                }
+                data.setCurrentBook((BookPrimeData)list.get(0));
+                configBookInformation();
+            }
+        });
+
+        getSupportLoaderManager().initLoader(BookPrimeContract.LOADER_IDENTIFIER, null, loader);
+    }
+
     private void loadBookTableInformation(final int bookId) {
         BookTableLoader loader = new BookTableLoader(getApplicationContext());
         loader.load(bookId);
@@ -261,11 +284,8 @@ public class ReaderActivity extends AppCompatActivity {
                 if (list == null) {
                     return;
                 }
-
                 bookTableList = (List<BookTableData>)list;
-
-                data.setFirstChapter(INIT_CHAPTER);
-                data.setLastChapter(bookTableList.size() - 1);
+                configBookInformation();
             }
         });
 
@@ -283,14 +303,30 @@ public class ReaderActivity extends AppCompatActivity {
                 if (list == null) {
                     return;
                 }
-
                 bookContentList = (List<BookContentData>)list;
-                loadBookContentInformation();
-                updateNavigatorMenu(data.getCurrentChapter());
+                configBookInformation();
             }
         });
 
         getSupportLoaderManager().initLoader(BookContentContract.LOADER_IDENTIFIER, null, loader);
+    }
+
+    private synchronized void configBookInformation() {
+        if (++configReady == 3) {
+            configReady = 0;
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    data.setFirstChapter(INIT_CHAPTER);
+                    data.setLastChapter(bookTableList.size() - 1);
+
+                    configureScreen();
+
+                    loadBookContentInformation();
+                    updateNavigatorMenu(data.getCurrentChapter());
+                }
+            });
+        }
     }
 
     private void loadViewInitSettings() {

@@ -15,8 +15,6 @@ import pe.ironbit.android.capstone.data.broadcast.appwidget.BookNexusWidgetRecei
 import pe.ironbit.android.capstone.firebase.image.ImageLoader;
 import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.model.BookPrime.BookPrimeData;
-import pe.ironbit.android.capstone.model.BookPrime.BookPrimeFactory;
-import pe.ironbit.android.capstone.model.BookPrime.BookPrimeParcelable;
 import pe.ironbit.android.capstone.screen.activity.ReaderActivity;
 
 public class ReaderAppWidget extends AppWidgetProvider {
@@ -43,9 +41,7 @@ public class ReaderAppWidget extends AppWidgetProvider {
                        .load(book.getBookId())
                        .target(widgetTarget);
 
-            BookPrimeParcelable parcelable = BookPrimeFactory.create(book);
             Intent configIntent = new Intent(context, ReaderActivity.class);
-            configIntent.putExtra(ReaderActivity.BOOK_PRIME_DATA_KEY, parcelable);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, configIntent, 0);
             views.setOnClickPendingIntent(R.id.reader_app_widget_main, pendingIntent);
         }
@@ -61,6 +57,12 @@ public class ReaderAppWidget extends AppWidgetProvider {
     }
 
     @Override
+    public void onEnabled(Context context) {
+        super.onEnabled(context);
+        updateAppWidgets(context);
+    }
+
+    @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
 
@@ -69,14 +71,17 @@ public class ReaderAppWidget extends AppWidgetProvider {
             BookPrimeData book = receive.getBook();
             if (book.getBookId() != BOOK_ID_NULL) {
                 this.book = book;
-
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
-                ComponentName thisWidget = new ComponentName(context.getApplicationContext(), ReaderAppWidget.class);
-                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
-                if (appWidgetIds != null && appWidgetIds.length > 0) {
-                    onUpdate(context, appWidgetManager, appWidgetIds);
-                }
+                updateAppWidgets(context);
             }
+        }
+    }
+
+    private void updateAppWidgets(Context context) {
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+        ComponentName thisWidget = new ComponentName(context.getApplicationContext(), ReaderAppWidget.class);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+        if (appWidgetIds != null && appWidgetIds.length > 0) {
+            onUpdate(context, appWidgetManager, appWidgetIds);
         }
     }
 }

@@ -341,7 +341,6 @@ public class BookMenuFragment extends BaseFragment {
             public void update(int position, ClickType type) {
                 if (type == ClickType.Short) {
                     doOnShortClickInBookItem(position);
-                    broadcastBookInformation(position);
                     return;
                 }
                 if (type == ClickType.Long) {
@@ -375,6 +374,8 @@ public class BookMenuFragment extends BaseFragment {
             doOnClickDownloadBook(position);
             return;
         }
+
+        broadcastBookInformation(position);
 
         BookPrimeParcelable parcelable = BookPrimeFactory.create(currentBookPrimeList.get(position));
         Intent intent = new Intent(getContext(), ReaderActivity.class);

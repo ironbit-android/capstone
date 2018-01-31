@@ -3,6 +3,8 @@ package pe.ironbit.android.capstone.model.BookPrime;
 import pe.ironbit.android.capstone.storage.contract.BookPrimeContract.BookPrimeEntry;
 
 public class BookPrimeData {
+    public static final int NULL_INDEX = -1;
+
     private int bookId;
 
     private String name;
