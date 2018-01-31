@@ -1,0 +1,49 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/reader_app_widget_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/teal050">
+
+    <ImageView
+        android:id="@+id/reader_app_widget_book_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"
+        android:layout_gravity="center_vertical"
+        android:src="@mipmap/ic_launcher"/>
+
+    <LinearLayout
+        android:id="@+id/reader_app_widget_book_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/reader_app_widget_book_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-regular"
+            android:textSize="@dimen/widget_text_size"
+            tools:text="Book Name"/>
+
+        <TextView
+            android:id="@+id/reader_app_widget_book_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-regular"
+            android:textSize="@dimen/widget_text_size"
+            tools:text="Book Author"/>
+
+    </LinearLayout>
+
+</LinearLayout>

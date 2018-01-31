@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <provider
             android:name=".storage.provider.CapstoneStorageProvider"
             android:authorities="pe.ironbit.android.capstone"
@@ -21,13 +22,23 @@
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".screen.activity.ReaderActivity"
             android:configChanges="orientation|screenSize" />
+
+        <receiver android:name=".screen.widget.ReaderAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/reader_app_widget_info" />
+        </receiver>
+
     </application>
 
 </manifest>

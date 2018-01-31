@@ -65,4 +65,9 @@
 
     <!-- Text -->
     <dimen name="text_size">17sp</dimen>
+
+    <!-- Widget -->
+    <dimen name="widget_text_size">14sp</dimen>
+
+    <dimen name="widget_margin">2dp</dimen>
 </resources>

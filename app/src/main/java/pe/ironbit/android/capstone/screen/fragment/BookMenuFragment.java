@@ -24,6 +24,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import pe.ironbit.android.capstone.R;
+import pe.ironbit.android.capstone.data.broadcast.appwidget.BookNexusWidgetSend;
 import pe.ironbit.android.capstone.firebase.storage.StorageService;
 import pe.ironbit.android.capstone.generic.Action;
 import pe.ironbit.android.capstone.model.BookContent.BookContentData;
@@ -320,6 +321,7 @@ public class BookMenuFragment extends BaseFragment {
             public void update(int position, ClickType type) {
                 if (type == ClickType.Short) {
                     doOnShortClickInBookItem(position);
+                    broadcastBookInformation(position);
                     return;
                 }
                 if (type == ClickType.Long) {
@@ -335,6 +337,12 @@ public class BookMenuFragment extends BaseFragment {
 
         adapter = new BookMenuAdapter(listener, service);
         recyclerView.setAdapter(adapter);
+    }
+
+    private void broadcastBookInformation(int position) {
+        BookNexusWidgetSend send = new BookNexusWidgetSend(getContext());
+        send.setData(currentBookPrimeList.get(position));
+        send.execute();
     }
 
     private void doOnShortClickInBookItem(final int position) {

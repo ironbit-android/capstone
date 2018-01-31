@@ -4,6 +4,7 @@ import android.content.Context;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.AppWidgetTarget;
 
 import pe.ironbit.android.capstone.R;
 import pe.ironbit.android.capstone.firebase.storage.StoragePath;
@@ -46,6 +47,21 @@ public class ImageLoader {
         }
 
         return this;
+    }
+
+    public void target(AppWidgetTarget widgetTarget) {
+        Context context = service.getContext();
+        StoragePath storagePath = service.getStoragePath();
+
+        String folder = context.getString(R.string.book_folder_path_prefix) + String.valueOf(bookId);
+        String file = folder + context.getString(R.string.image_file_path_suffix);
+
+        storagePath.append(folder).append(file);
+
+        Glide.with(service.getContext())
+             .asBitmap()
+             .load(storagePath.getReference())
+             .into(widgetTarget);
     }
 
     private void execute() {

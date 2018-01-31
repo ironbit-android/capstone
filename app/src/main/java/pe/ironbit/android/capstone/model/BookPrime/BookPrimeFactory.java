@@ -20,6 +20,17 @@ public class BookPrimeFactory {
         return new BookPrimeParcelable(data);
     }
 
+    public static BookPrimeData create(BookPrimeParcelable data) {
+        return data.getBookPrime();
+    }
+
+    public static BookPrimeData create(android.os.Parcelable data) {
+        if (data == null) {
+            return new BookPrimeData();
+        }
+        return ((BookPrimeParcelable)data).getBookPrime();
+    }
+
     public static List<BookPrimeData> createBookPrimeDataList(List<BookPrimeParcelable> input) {
         if (input == null) {
             return null;
