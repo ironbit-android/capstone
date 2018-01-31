@@ -511,7 +511,7 @@ public class LibraryActivity extends AppCompatActivity {
               .setListener(new OnStorageListener() {
                   @Override
                   public void onEvent(List list) {
-                      getLoaderManager().destroyLoader(BookPrimeContract.LOADER_IDENTIFIER);
+                      getSupportLoaderManager().destroyLoader(BookPrimeContract.LOADER_IDENTIFIER);
 
                       if (list == null) {
                           return;
@@ -550,10 +550,15 @@ public class LibraryActivity extends AppCompatActivity {
 
                     delegate.setAction(new Action<BookPrimeData>() {
                         @Override
-                        public void execute(BookPrimeData bookPrimeData) {
-                            bookPrimeDataList.add(bookPrimeData);
-                            BookPrimeMapper.insert(getContentResolver(), bookPrimeData);
-                            finishedLoadBookDataFromFirebase();
+                        public void execute(final BookPrimeData bookPrimeData) {
+                            new Handler().post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    bookPrimeDataList.add(bookPrimeData);
+                                    BookPrimeMapper.insert(getContentResolver(), bookPrimeData);
+                                    finishedLoadBookDataFromFirebase();
+                                }
+                            });
                         }
                     });
 
@@ -567,13 +572,8 @@ public class LibraryActivity extends AppCompatActivity {
 
     private synchronized void finishedLoadBookDataFromFirebase() {
         if (totalBooksLibrary == ++totalBooksLoaded) {
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    setTitle(currentTitle);
-                    setActivityMode(ActivityMode.BookMenu);
-                }
-            });
+            setTitle(currentTitle);
+            setActivityMode(ActivityMode.BookMenu);
         }
     }
 
