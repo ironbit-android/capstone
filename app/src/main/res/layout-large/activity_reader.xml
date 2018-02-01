@@ -37,6 +37,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:onClick="onClickToolbarBackIcon"
+                        android:contentDescription="@string/accessibility_back_to_library"
                         android:src="@mipmap/ic_chevron_left_black_36dp" />
 
                     <LinearLayout
@@ -123,6 +124,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/general_margin_horizontal_between_items"
                     android:onClick="onClickNavigatorLeftIcon"
+                    android:contentDescription="@string/accessibility_go_previous_chapter"
                     android:src="@mipmap/ic_chevron_left_black_36dp"/>
 
                 <ImageView
@@ -132,6 +134,7 @@
                     android:layout_margin="@dimen/general_margin_horizontal_between_items"
                     android:layout_toRightOf="@id/activity_reader_navigator_left_icon"
                     android:onClick="onClickNavigatorRightIcon"
+                    android:contentDescription="@string/accessibility_go_next_chapter"
                     android:src="@mipmap/ic_chevron_right_black_36dp"/>
 
                 <ImageView
@@ -141,6 +144,7 @@
                     android:layout_margin="@dimen/general_margin_horizontal_between_items"
                     android:layout_alignParentRight="true"
                     android:onClick="onClickNavigatorMenuIcon"
+                    android:contentDescription="@string/accessibility_main_menu"
                     android:src="@mipmap/ic_menu_black_36dp"/>
 
             </RelativeLayout>

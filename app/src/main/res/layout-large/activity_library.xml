@@ -67,6 +67,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:onClick="onClickToolbarRightMenu"
+                        android:contentDescription="@string/accessibility_search_book"
                         android:src="@mipmap/ic_search_black_24dp" />
 
                 </RelativeLayout>

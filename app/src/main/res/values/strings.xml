@@ -100,4 +100,14 @@
     <!-- Reader Activity -->
     <string name="table_of_contents">Table Of Contents</string>
 
+    <!-- Accessibility -->
+    <string name="accessibility_main_menu">Main Menu</string>
+
+    <string name="accessibility_search_book">Search Book</string>
+
+    <string name="accessibility_go_next_chapter">Go to Next Chapter</string>
+
+    <string name="accessibility_go_previous_chapter">Go to Previous Chapter</string>
+
+    <string name="accessibility_back_to_library">Back to Library</string>
 </resources>
