@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_reader_coordinator_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/activity_reader_appbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:elevation="@dimen/general_elevation">
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/activity_reader_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_scrollFlags="scroll">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_margin="@dimen/general_margin_in_toolbar">
+
+                    <ImageView
+                        android:id="@+id/activity_reader_toolbar_back_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:onClick="onClickToolbarBackIcon"
+                        android:contentDescription="@string/accessibility_back_to_library"
+                        android:src="@mipmap/ic_chevron_left_black_36dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:layout_marginEnd="@dimen/activity_reader_title_margin_right"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/activity_reader_toolbar_book_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="@dimen/general_margin_vertical_between_items"
+                            android:fontFamily="sans-serif-medium"
+                            tools:text="Book's Name"
+                            android:textSize="@dimen/general_appbar_text_size" />
+
+                        <TextView
+                            android:id="@+id/activity_reader_toolbar_book_author"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="@dimen/general_margin_vertical_between_items"
+                            android:fontFamily="sans-serif-medium"
+                            tools:text="Book's Author"
+                            android:textSize="@dimen/general_appbar_text_size"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <FrameLayout
+            android:id="@+id/layout_reader_main_menu"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimaryDark" />
+
+        <LinearLayout
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <android.support.v4.widget.NestedScrollView
+                android:id="@+id/activity_reader_main_scroll"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <WebView
+                    android:id="@+id/activity_reader_webview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </android.support.v4.widget.NestedScrollView>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@color/colorPrimaryDark">
+
+                <ImageView
+                    android:id="@+id/activity_reader_navigator_left_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/general_margin_horizontal_between_items"
+                    android:onClick="onClickNavigatorLeftIcon"
+                    android:contentDescription="@string/accessibility_go_previous_chapter"
+                    android:src="@mipmap/ic_chevron_left_black_36dp"/>
+
+                <ImageView
+                    android:id="@+id/activity_reader_navigator_right_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/general_margin_horizontal_between_items"
+                    android:layout_toEndOf="@id/activity_reader_navigator_left_icon"
+                    android:onClick="onClickNavigatorRightIcon"
+                    android:contentDescription="@string/accessibility_go_next_chapter"
+                    android:src="@mipmap/ic_chevron_right_black_36dp"/>
+
+                <ImageView
+                    android:id="@+id/activity_reader_navigator_menu_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/general_margin_horizontal_between_items"
+                    android:layout_alignParentEnd="true"
+                    android:onClick="onClickNavigatorMenuIcon"
+                    android:contentDescription="@string/accessibility_main_menu"
+                    android:src="@mipmap/ic_menu_black_36dp"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

@@ -1,5 +1,6 @@
 package pe.ironbit.android.capstone.screen.activity;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -206,7 +207,11 @@ public class LibraryActivity extends AppCompatActivity {
     }
 
     public void onClickToolbarLeftMenu(View view) {
-        drawerLayout.openDrawer(Gravity.LEFT);
+        if (isRTLActive()) {
+            drawerLayout.openDrawer(Gravity.RIGHT);
+        } else {
+            drawerLayout.openDrawer(Gravity.LEFT);
+        }
     }
 
     public void onClickToolbarRightMenu(View view) {
@@ -593,6 +598,14 @@ public class LibraryActivity extends AppCompatActivity {
     private void showMessageInternetProblem() {
         String message = getString(R.string.notify_internet_not_working);
         Snackbar.make(primeView, message, Snackbar.LENGTH_LONG).show();
+    }
+
+    private boolean isRTLActive() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+        } else {
+            return false;
+        }
     }
 
     private boolean isInternetWorking() {

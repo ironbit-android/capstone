@@ -1,0 +1,118 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="pe.ironbit.android.capstone.screen.fragment.MainMenuFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_margin="@dimen/general_margin_in_borders">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-regular"
+            android:textSize="@dimen/general_body_text_size"
+            android:text="@string/user_name" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-regular"
+            android:textSize="@dimen/general_body_text_size"
+            android:text="@string/user_mail" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:background="@color/colorPrimary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-regular"
+            android:textSize="@dimen/general_subheading_text_size"
+            android:text="@string/library" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:textStyle="normal"
+            android:fontFamily="sans-serif-regular"
+            android:textSize="@dimen/general_body_text_size"
+            android:text="@string/cloud"
+            android:onClick="onClickMainMenuCloudOption" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:textStyle="normal"
+            android:fontFamily="sans-serif-regular"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:text="@string/local"
+            android:onClick="onClickMainMenuLocalOption" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:background="@color/colorPrimary"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-regular"
+            android:textSize="@dimen/general_subheading_text_size"
+            android:text="@string/collection"/>
+
+        <ScrollView
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/fragment_main_menu_label_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/general_margin_vertical_between_items"/>
+
+        </ScrollView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"
+            android:layout_margin="@dimen/general_margin_vertical_between_items" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/general_margin_vertical_between_items"
+            android:onClick="onClickManagerOption"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-regular"
+            android:textSize="@dimen/general_subheading_text_size"
+            android:text="@string/manager" />
+
+    </LinearLayout>
+
+</FrameLayout>

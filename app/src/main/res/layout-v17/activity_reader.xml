@@ -49,7 +49,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
-                            android:layout_marginRight="@dimen/activity_reader_title_margin_right"
+                            android:layout_marginEnd="@dimen/activity_reader_title_margin_right"
                             android:orientation="vertical">
 
                             <TextView
@@ -66,7 +66,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="sans-serif-medium"
                                 tools:text="Book's Author"
-                                android:textSize="@dimen/general_appbar_text_size" />
+                                android:textSize="@dimen/general_appbar_text_size"/>
 
                         </LinearLayout>
 
@@ -83,8 +83,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/general_other_margin"
-            android:layout_marginRight="@dimen/general_other_margin"
-            android:layout_marginLeft="@dimen/general_other_margin"
+            android:layout_marginEnd="@dimen/general_other_margin"
+            android:layout_marginStart="@dimen/general_other_margin"
             android:layout_marginBottom="@dimen/general_bottom_margin"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -108,27 +108,27 @@
                 android:layout_margin="@dimen/general_margin_horizontal_between_items"
                 android:onClick="onClickNavigatorLeftIcon"
                 android:contentDescription="@string/accessibility_go_previous_chapter"
-                android:src="@mipmap/ic_chevron_left_black_36dp" />
+                android:src="@mipmap/ic_chevron_left_black_36dp"/>
 
             <ImageView
                 android:id="@+id/activity_reader_navigator_right_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/general_margin_horizontal_between_items"
-                android:layout_toRightOf="@id/activity_reader_navigator_left_icon"
+                android:layout_toEndOf="@id/activity_reader_navigator_left_icon"
                 android:onClick="onClickNavigatorRightIcon"
                 android:contentDescription="@string/accessibility_go_next_chapter"
-                android:src="@mipmap/ic_chevron_right_black_36dp" />
+                android:src="@mipmap/ic_chevron_right_black_36dp"/>
 
             <ImageView
                 android:id="@+id/activity_reader_navigator_menu_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/general_margin_horizontal_between_items"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:onClick="onClickNavigatorMenuIcon"
                 android:contentDescription="@string/accessibility_main_menu"
-                android:src="@mipmap/ic_menu_black_36dp" />
+                android:src="@mipmap/ic_menu_black_36dp"/>
 
         </RelativeLayout>
 
@@ -139,6 +139,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:layout_margin="@dimen/general_margin_in_borders" />
+        android:layout_margin="@dimen/general_margin_in_borders"/>
 
 </android.support.v4.widget.DrawerLayout>

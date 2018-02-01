@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/recyclerview_book_menu_cardview"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/book_menu_card_height"
+    android:layout_margin="@dimen/book_menu_card_margin"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    card_view:cardCornerRadius="@dimen/book_menu_card_corner_radius">
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/recyclerview_book_menu_book_image"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/book_menu_image_height"
+            android:scaleType="centerCrop" />
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.LinearLayoutCompat
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/recyclerview_book_menu_book_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    tools:text="The End of Eternity" />
+
+                <TextView
+                    android:id="@+id/recyclerview_book_menu_book_author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    tools:text="Isaac Asimov" />
+
+            </android.support.v7.widget.LinearLayoutCompat>
+
+            <ImageView
+                android:id="@+id/recyclerview_book_menu_book_icon"
+                android:layout_gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/book_menu_book_icon_margin"
+                android:layout_marginEnd="@dimen/book_menu_book_icon_margin"
+                android:src="@mipmap/ic_cloud_black_24dp"/>
+
+        </android.support.v7.widget.LinearLayoutCompat>
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
+    <ImageView
+        android:id="@+id/recyclerview_book_menu_cancel_download"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_clear_black_24dp"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+
+    <ProgressBar
+        android:id="@+id/recyclerview_book_menu_progressbar_download"
+        android:layout_width="@dimen/book_menu_image_height"
+        android:layout_height="@dimen/book_menu_image_height"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+
+</android.support.v7.widget.CardView>

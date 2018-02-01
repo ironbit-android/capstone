@@ -2,6 +2,7 @@ package pe.ironbit.android.capstone.screen.activity;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -14,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -68,6 +70,9 @@ public class ReaderActivity extends AppCompatActivity {
     @BindView(R.id.activity_reader_appbar_layout)
     AppBarLayout appBarLayout;
 
+    @BindView(R.id.activity_reader_toolbar_back_icon)
+    ImageView toolbarBackIconView;
+
     @BindView(R.id.activity_reader_toolbar_book_name)
     TextView bookNameView;
 
@@ -93,6 +98,7 @@ public class ReaderActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        updateRTLView();
         configureVariables();
         loadSavedInformation();
         loadMainMenuFragment();
@@ -186,7 +192,11 @@ public class ReaderActivity extends AppCompatActivity {
     public void onClickNavigatorMenuIcon(View view) {
         loadMainMenuFragment();
         if (isDevicePhone()) {
-            drawerLayout.openDrawer(Gravity.LEFT);
+            if (isRTLActive()) {
+                drawerLayout.openDrawer(Gravity.RIGHT);
+            } else {
+                drawerLayout.openDrawer(Gravity.LEFT);
+            }
         }
     }
 
@@ -354,6 +364,22 @@ public class ReaderActivity extends AppCompatActivity {
         analyticsService.setCurrentBook(data.getCurrentBook().getBookId())
                         .setCurrentChapter(data.getCurrentChapter())
                         .logEvent();
+    }
+
+    private void updateRTLView() {
+        if (isRTLActive()) {
+            toolbarBackIconView.setScaleX(-1f);
+            navigatorLeftIconView.setScaleX(-1f);
+            navigatorRightIconView.setScaleX(-1f);
+        }
+    }
+
+    private boolean isRTLActive() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return getResources().getConfiguration().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+        } else {
+            return false;
+        }
     }
 
     private void returnToLibraryActivity() {
