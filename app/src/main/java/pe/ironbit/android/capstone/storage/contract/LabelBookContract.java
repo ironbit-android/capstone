@@ -3,7 +3,7 @@ package pe.ironbit.android.capstone.storage.contract;
 import android.content.ContentResolver;
 import android.net.Uri;
 
-public class LabelBookContract {
+public final class LabelBookContract {
     public static final int LOADER_IDENTIFIER = 4;
 
     public static final String PATH_TABLE = "label_book";

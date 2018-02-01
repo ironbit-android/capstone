@@ -2,7 +2,7 @@ package pe.ironbit.android.capstone.storage.contract;
 
 import android.net.Uri;
 
-public class CapstoneStorageContract {
+public final class CapstoneStorageContract {
     /**
      * Name of Content Provider
      */

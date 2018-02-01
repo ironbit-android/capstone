@@ -3,7 +3,7 @@ package pe.ironbit.android.capstone.storage.contract;
 import android.content.ContentResolver;
 import android.net.Uri;
 
-public class LabelPrimeContract {
+public final class LabelPrimeContract {
     public static final int LOADER_IDENTIFIER = 5;
 
     public static final String PATH_TABLE = "label_prime";
