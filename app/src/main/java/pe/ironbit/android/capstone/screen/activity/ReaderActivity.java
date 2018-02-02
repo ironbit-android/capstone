@@ -2,9 +2,11 @@ package pe.ironbit.android.capstone.screen.activity;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,7 @@ import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import butterknife.BindView;
@@ -41,6 +44,7 @@ import pe.ironbit.android.capstone.storage.loader.BookContentLoader;
 import pe.ironbit.android.capstone.storage.loader.BookPrimeLoader;
 import pe.ironbit.android.capstone.storage.loader.BookTableLoader;
 import pe.ironbit.android.capstone.util.DeviceMetaData;
+import pe.ironbit.android.capstone.util.Syncker;
 
 public class ReaderActivity extends AppCompatActivity {
     public static final String BOOK_PRIME_DATA_KEY ="BOOK_PRIME_DATA_KEY";
@@ -50,6 +54,44 @@ public class ReaderActivity extends AppCompatActivity {
     private static final float ALPHA_ENABLE = 1.0f;
 
     private static final float ALPHA_DISABLE = 0.25f;
+
+    private static class LoadTask extends AsyncTask<Integer, Void, Void> {
+        private final WeakReference<ReaderActivity> activity;
+
+        public LoadTask(ReaderActivity activity) {
+            this.activity = new WeakReference<ReaderActivity>(activity);
+        }
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            Looper.prepare();
+            final int bookId = integers[0];
+            Syncker[] syncker = new Syncker[] {new Syncker(), new Syncker(), new Syncker()};
+
+            if (activity.get() != null) {
+                activity.get().loadBookDataInformation(bookId, syncker[0]);
+                activity.get().loadBookTableInformation(bookId, syncker[1]);
+                activity.get().loadBookContentInformation(bookId, syncker[2]);
+            }
+
+            try {
+                for (Syncker unit : syncker) {
+                    unit.halt();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void nothing) {
+            if (activity.get() != null) {
+                activity.get().postInitialization();
+            }
+        }
+    }
 
     private BookSharedData shared;
 
@@ -259,13 +301,21 @@ public class ReaderActivity extends AppCompatActivity {
     }
 
     private void loadBookInformation(final int bookId) {
-        loadBookDataInformation(bookId);
-        loadBookTableInformation(bookId);
-        loadBookContentInformation(bookId);
+        new LoadTask(this).execute(bookId);
     }
 
-    private void loadBookDataInformation(final int bookId) {
-        BookPrimeLoader loader = new BookPrimeLoader(getApplicationContext());
+    private void postInitialization() {
+        data.setFirstChapter(INIT_CHAPTER);
+        data.setLastChapter(bookTableList.size() - 1);
+
+        configureScreen();
+
+        loadBookContentInformation();
+        updateNavigatorMenu(data.getCurrentChapter());
+    }
+
+    private void loadBookDataInformation(final int bookId, final Syncker syncker) {
+        final BookPrimeLoader loader = new BookPrimeLoader(getApplicationContext());
         loader.loadItem(bookId);
         loader.setListener(new OnStorageListener() {
             @Override
@@ -276,15 +326,15 @@ public class ReaderActivity extends AppCompatActivity {
                     return;
                 }
                 data.setCurrentBook((BookPrimeData)list.get(0));
-                configBookInformation();
+                syncker.proceed();
             }
         });
 
         getSupportLoaderManager().initLoader(BookPrimeContract.LOADER_IDENTIFIER, null, loader);
     }
 
-    private void loadBookTableInformation(final int bookId) {
-        BookTableLoader loader = new BookTableLoader(getApplicationContext());
+    private void loadBookTableInformation(final int bookId, final Syncker syncker) {
+        final BookTableLoader loader = new BookTableLoader(getApplicationContext());
         loader.load(bookId);
         loader.setListener(new OnStorageListener() {
             @Override
@@ -295,15 +345,15 @@ public class ReaderActivity extends AppCompatActivity {
                     return;
                 }
                 bookTableList = (List<BookTableData>)list;
-                configBookInformation();
+                syncker.proceed();
             }
         });
 
         getSupportLoaderManager().initLoader(BookTableContract.LOADER_IDENTIFIER, null, loader);
     }
 
-    private void loadBookContentInformation(final int bookId) {
-        BookContentLoader loader = new BookContentLoader(getApplicationContext());
+    private void loadBookContentInformation(final int bookId, final Syncker syncker) {
+        final BookContentLoader loader = new BookContentLoader(getApplicationContext());
         loader.load(bookId);
         loader.setListener(new OnStorageListener() {
             @Override
@@ -314,29 +364,11 @@ public class ReaderActivity extends AppCompatActivity {
                     return;
                 }
                 bookContentList = (List<BookContentData>)list;
-                configBookInformation();
+                syncker.proceed();
             }
         });
 
         getSupportLoaderManager().initLoader(BookContentContract.LOADER_IDENTIFIER, null, loader);
-    }
-
-    private synchronized void configBookInformation() {
-        if (++configReady == 3) {
-            configReady = 0;
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    data.setFirstChapter(INIT_CHAPTER);
-                    data.setLastChapter(bookTableList.size() - 1);
-
-                    configureScreen();
-
-                    loadBookContentInformation();
-                    updateNavigatorMenu(data.getCurrentChapter());
-                }
-            });
-        }
     }
 
     private void loadViewInitSettings() {
