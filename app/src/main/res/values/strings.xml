@@ -103,7 +103,33 @@
     <!-- Accessibility -->
     <string name="accessibility_main_menu">Main Menu</string>
 
+    <string name="accessibility_cancel">Cancel Option</string>
+
+    <string name="accessibility_library_option">Library Option</string>
+
+    <string name="accessibility_table_contents_option">Table Of Contents Option</string>
+
+    <string name="accessibility_cloud_option">Cloud Library Option</string>
+
+    <string name="accessibility_local_option">Local Library Option</string>
+
+    <string name="accessibility_widget_option">Widget Open Book</string>
+
+    <string name="accessibility_manager_label">Manager Label</string>
+
+    <string name="accessibility_edit_label">Edit Label</string>
+
+    <string name="accessibility_erase_label">Erase Label</string>
+
+    <string name="accessibility_read_book">Read Book</string>
+
+    <string name="accessibility_cancel_download">Cancel Download</string>
+
+    <string name="accessibility_create_label_input">Create Label Input</string>
+
     <string name="accessibility_search_book">Search Book</string>
+
+    <string name="accessibility_search_book_input">Search Book Input</string>
 
     <string name="accessibility_go_next_chapter">Go to Next Chapter</string>
 

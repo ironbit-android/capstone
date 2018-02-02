@@ -49,6 +49,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_margin="@dimen/general_margin_in_borders"
+        android:contentDescription="@string/accessibility_cancel"
         style="?android:attr/borderlessButtonStyle"
         android:text="@string/dialog_cancel"/>
 

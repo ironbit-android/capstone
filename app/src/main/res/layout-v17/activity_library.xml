@@ -58,6 +58,7 @@
                             android:maxLines="1"
                             android:maxLength="20"
                             android:visibility="gone"
+                            android:contentDescription="@string/accessibility_search_book_input"
                             tools:text="sample"/>
 
                         <TextView

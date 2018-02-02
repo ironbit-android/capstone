@@ -55,6 +55,7 @@
             android:fontFamily="sans-serif-regular"
             android:textSize="@dimen/general_body_text_size"
             android:text="@string/cloud"
+            android:contentDescription="@string/accessibility_cloud_option"
             android:onClick="onClickMainMenuCloudOption" />
 
         <TextView
@@ -65,6 +66,7 @@
             android:fontFamily="sans-serif-regular"
             android:layout_margin="@dimen/general_margin_vertical_between_items"
             android:text="@string/local"
+            android:contentDescription="@string/accessibility_local_option"
             android:onClick="onClickMainMenuLocalOption" />
 
         <View
@@ -111,6 +113,7 @@
             android:textStyle="bold"
             android:fontFamily="sans-serif-regular"
             android:textSize="@dimen/general_subheading_text_size"
+            android:contentDescription="@string/accessibility_manager_label"
             android:text="@string/manager" />
 
     </LinearLayout>

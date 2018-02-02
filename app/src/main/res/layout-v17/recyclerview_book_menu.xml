@@ -20,7 +20,8 @@
             android:id="@+id/recyclerview_book_menu_book_image"
             android:layout_width="match_parent"
             android:layout_height="@dimen/book_menu_image_height"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/accessibility_read_book" />
 
         <android.support.v7.widget.LinearLayoutCompat
             android:orientation="horizontal"
@@ -68,6 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@mipmap/ic_clear_black_24dp"
+        android:contentDescription="@string/accessibility_cancel_download"
         android:visibility="gone"
         tools:visibility="visible"/>
 

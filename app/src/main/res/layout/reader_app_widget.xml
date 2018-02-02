@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:scaleType="centerCrop"
         android:layout_gravity="center_vertical"
+        android:contentDescription="@string/accessibility_widget_option"
         android:src="@mipmap/ic_launcher"/>
 
     <LinearLayout

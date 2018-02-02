@@ -32,6 +32,7 @@
         android:layout_marginStart="@dimen/general_margin_horizontal_between_items"
         android:layout_marginRight="@dimen/general_margin_horizontal_between_items"
         android:layout_marginEnd="@dimen/general_margin_horizontal_between_items"
+        android:contentDescription="@string/accessibility_edit_label"
         android:src="@mipmap/ic_edit_black_24dp"/>
 
     <ImageView
@@ -42,6 +43,7 @@
         android:layout_marginStart="@dimen/general_margin_horizontal_between_items"
         android:layout_marginRight="@dimen/general_margin_horizontal_between_items"
         android:layout_marginEnd="@dimen/general_margin_horizontal_between_items"
+        android:contentDescription="@string/accessibility_erase_label"
         android:src="@mipmap/ic_delete_black_24dp"/>
 
 </LinearLayout>

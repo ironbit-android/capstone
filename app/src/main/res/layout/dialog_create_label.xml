@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text"
-        android:layout_margin="@dimen/dialog_margin"/>
+        android:layout_margin="@dimen/dialog_margin"
+        android:contentDescription="@string/accessibility_create_label_input" />
 
 </LinearLayout>

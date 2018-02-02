@@ -20,6 +20,7 @@
             android:textStyle="bold"
             android:fontFamily="sans-serif-regular"
             android:textSize="@dimen/general_subheading_text_size"
+            android:contentDescription="@string/accessibility_library_option"
             android:text="@string/library"/>
 
         <TextView
@@ -31,6 +32,7 @@
             android:textStyle="bold"
             android:fontFamily="sans-serif-regular"
             android:textSize="@dimen/general_subheading_text_size"
+            android:contentDescription="@string/accessibility_table_contents_option"
             android:text="@string/table_of_contents"/>
 
     </LinearLayout>
