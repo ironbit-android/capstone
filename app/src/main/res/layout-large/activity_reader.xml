@@ -133,6 +133,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/general_margin_horizontal_between_items"
                     android:layout_toRightOf="@id/activity_reader_navigator_left_icon"
+                    android:layout_toEndOf="@id/activity_reader_navigator_left_icon"
                     android:onClick="onClickNavigatorRightIcon"
                     android:contentDescription="@string/accessibility_go_next_chapter"
                     android:src="@mipmap/ic_chevron_right_black_36dp"/>
@@ -143,6 +144,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/general_margin_horizontal_between_items"
                     android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:onClick="onClickNavigatorMenuIcon"
                     android:contentDescription="@string/accessibility_main_menu"
                     android:src="@mipmap/ic_menu_black_36dp"/>
