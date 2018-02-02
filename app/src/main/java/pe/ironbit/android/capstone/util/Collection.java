@@ -3,10 +3,11 @@ package pe.ironbit.android.capstone.util;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Collection {
+public final class Collection {
     public static final int NOT_FOUND = -1;
 
     private Collection() {
+        throw new AssertionError("No object instance for " + getClass().getSimpleName());
     }
 
     public static final float[] convertFloatCollection(final List<Float> input) {

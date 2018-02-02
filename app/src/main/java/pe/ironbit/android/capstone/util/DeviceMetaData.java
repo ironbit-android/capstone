@@ -3,8 +3,9 @@ package pe.ironbit.android.capstone.util;
 import android.content.Context;
 import android.content.res.Configuration;
 
-public class DeviceMetaData {
+public final class DeviceMetaData {
     private DeviceMetaData() {
+        throw new AssertionError("No object instance for " + getClass().getSimpleName());
     }
 
     public static boolean isOrientationPortrait(Context context) {

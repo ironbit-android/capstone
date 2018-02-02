@@ -4,8 +4,9 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-public class InternetStatus {
+public final class InternetStatus {
     private InternetStatus() {
+        throw new AssertionError("No object instance for " + getClass().getSimpleName());
     }
 
     public static boolean verifyInternetConnection(Context context) {
