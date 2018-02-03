@@ -45,6 +45,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
                         android:layout_marginRight="@dimen/activity_reader_title_margin_right"
+                        android:layout_marginEnd="@dimen/activity_reader_title_margin_right"
                         android:orientation="vertical">
 
                         <TextView

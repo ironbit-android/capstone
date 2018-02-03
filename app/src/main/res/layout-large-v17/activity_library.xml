@@ -32,7 +32,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
-                        android:visibility="gone"/>
+                        android:contentDescription="@string/accessibility_main_menu"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/activity_library_toolbar_selection"

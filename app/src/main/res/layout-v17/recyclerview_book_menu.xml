@@ -58,6 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/book_menu_book_icon_margin"
                 android:layout_marginEnd="@dimen/book_menu_book_icon_margin"
+                android:contentDescription="@string/accessibility_cloud_storage"
                 android:src="@mipmap/ic_cloud_black_24dp"/>
 
         </android.support.v7.widget.LinearLayoutCompat>

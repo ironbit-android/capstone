@@ -109,6 +109,8 @@
 
     <string name="accessibility_table_contents_option">Table Of Contents Option</string>
 
+    <string name="accessibility_cloud_storage">Cloud Storage</string>
+
     <string name="accessibility_cloud_option">Cloud Library Option</string>
 
     <string name="accessibility_local_option">Local Library Option</string>
